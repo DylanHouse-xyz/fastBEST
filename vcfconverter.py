@@ -14,7 +14,7 @@ This function takes the input VCF file and creates a Pandas dataframe containing
 
     allele_frequencies = []
     # variant_ids = []
-    sample_names = vcf.samples
+    # sample_names = vcf.samples
 
     for v in vcf:
         if v.format("AF") is not None:
@@ -53,7 +53,7 @@ def fastbe_matrix(allele_frequencies, matrix):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='...')
+    parser = argparse.ArgumentParser(description='Extracts the allele frequencies from the  input Variant Calling Format (VCF) file to the required frequency matrix format per fastBE specifications. Mutations correspond to columns and rows correspond to unique samples. ')
     parser.add_argument('-i', help="input VCF file")
     parser.add_argument('-o', help="Your output file name")
     args = parser.parse_args()

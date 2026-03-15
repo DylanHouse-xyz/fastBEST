@@ -1,15 +1,12 @@
-import os
-
-
-
 configfile: "config/config.yaml"
 
 rule all:
-	input:
-		expand("results/{sample}_filtered.vcf.gz", sample = config["samples"]["tumors"])
+    input:
+        "results/{batch}_af_matrix.csv".format(batch=config['batch_name'])
 
 
 
 ## Modules
 
 include: "rules/mutect2.smk"
+include: "rules/format-data.smk"

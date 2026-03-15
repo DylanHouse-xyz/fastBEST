@@ -1,29 +1,43 @@
 rule mutect2:
     input:
-        map=os.path.join(config["bam_dir"], "{sample}.bam"),
-        normal=os.path.join(config["bam_dir"], config["samples"]["normal"] + ".bam"),
+        bam=expand("{bam_dir}/{tumor}",
+            bam_dir=config['bam_dir'],
+            tumor=config['samples']['tumors']),
         fasta=config['ref']['fasta'],
-        intervals=config['ref']['intervals'],
-        germline=config['ref']['germline']
     output:
-        vcf="results/{sample}.vcf.gz"
+        vcf="results/{batch}.vcf.gz".format(batch=config['batch_name']),
     params:
-        normal_name=config['samples']['normal']
+        bams=lambda wc, input: " ".join(["-I " + b for b in input.bam]),
+        normal=config['samples']['normal'],
+        germline=config['ref']['germline'],
+        intervals=config['ref']['intervals'],
     threads: 8
     resources:
-        mem_mb=9216
+        mem_mb=53248,
     log:
-        log_file="logs/mutect2_{sample}.log"
-    wrapper:
-        "v7.6.0/bio/gatk/mutect"
+        "logs/mutect2_{batch}.log".format(batch=config['batch_name']),
+   shell:
+        "gatk --java-options '-Xmx{resources.mem_mb}m' Mutect2 "
+        "-R {input.fasta} "
+        "{params.bams} "
+        "-normal {params.normal} "
+        "--germline-resource {params.germline} "
+        "-L {params.intervals} "
+        "-O {output.vcf} "
+        "--native-pair-hmm-threads {threads} "
+        "&> {log}"
 
 rule filter_mutect:
     input:
-        vcf="results/{sample}.vcf.gz",
-        ref=config['ref']['fasta']
+        vcf="results/{batch}.vcf.gz".format(batch=config['batch_name']),
+        ref=config['ref']['fasta'],
     output:
-        vcf="results/{sample}_filtered.vcf.gz"
+        vcf="results/{batch}_filtered.vcf.gz".format(batch=config['batch_name']),
     log:
-        log_file="logs/filter_mutect_{sample}.log"
-    wrapper:
-        "v7.6.0/bio/gatk/filtermutectcalls"
+        "logs/filter_mutect_{batch}.log".format(batch=config['batch_name']),
+    shell:
+        "gatk FilterMutectCalls "
+        "-R {input.ref} "
+        "-V {input.vcf} "
+        "-O {output.vcf} "
+        "&> {log}"

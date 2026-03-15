@@ -1,17 +1,21 @@
 ref:
-  fasta: "/path/to/.fasta"
-  intervals: "/path/to/.bed"
-  germline: "/path/to/germline-to-filter.vcf"
+  fasta: "/path/to/fasta"
+  intervals: "/path/to/.bed/file"
+  germline: "/path/to/germline/resource"
 
-bam_dir: "/path/to/bams_dir"
+bam_dir: "/path/to/bam/dir"
+batch_name: "<name-of-samples>"
+
+
 
 samples:
-  normal: "/path/to/Normal_Sample"
+  normal: "<name-from-samtools>"
   tumors:
-    - patient_primary
-    - patient_met1
-    - patient_met2
-    - patient_met3
-    - patient_met4
-    - patient_met5
-    - patient_met6
+    - sample1
+    - sample2
+    - sample3
+    - sample4
+    - sample5
+    - sample6
+    - sample7
+    - sample8

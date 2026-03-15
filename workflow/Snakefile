@@ -1,1 +1,15 @@
+import os
 
+
+
+configfile: "config/config.yaml"
+
+rule all:
+	input:
+		expand("results/{sample}_filtered.vcf.gz", sample = config["samples"]["tumors"])
+
+
+
+## Modules
+
+include: "rules/mutect2.smk"

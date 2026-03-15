@@ -1,0 +1,17 @@
+ref:
+  fasta: "/path/to/.fasta"
+  intervals: "/path/to/.bed"
+  germline: "/path/to/germline-to-filter.vcf"
+
+bam_dir: "/path/to/bams_dir"
+
+samples:
+  normal: "/path/to/Normal_Sample"
+  tumors:
+    - patient_primary
+    - patient_met1
+    - patient_met2
+    - patient_met3
+    - patient_met4
+    - patient_met5
+    - patient_met6

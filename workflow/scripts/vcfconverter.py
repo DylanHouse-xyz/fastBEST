@@ -17,13 +17,14 @@ This function takes the input VCF file and creates a Pandas dataframe containing
     # sample_names = vcf.samples
 
     for v in vcf:
-        if v.format("AF") is not None:
-            allele_frequencies.append(v.format("AF").flatten())
-            #variant_ids.append(f"{v.CHROM}:{v.POS}:{v.REF}>{v.ALT[0]}")
+        if v.FILTER is None:
+            if v.format("AF") is not None:
+                allele_frequencies.append(v.format("AF").flatten())
+                #variant_ids.append(f"{v.CHROM}:{v.POS}:{v.REF}>{v.ALT[0]}")
 
-        else:
-            allele_frequencies.append(v.gt_alt_depths / (v.gt_ref_depths + v.gt_alt_depths))
-           # variant_ids.append(f"{v.CHROM}:{v.POS}:{v.REF}>{v.ALT[0]}")
+            else:
+                allele_frequencies.append(v.gt_alt_depths / (v.gt_ref_depths + v.gt_alt_depths))
+                # variant_ids.append(f"{v.CHROM}:{v.POS}:{v.REF}>{v.ALT[0]}")
 
 
 

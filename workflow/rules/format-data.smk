@@ -6,4 +6,4 @@ rule vcf_converter:
         log:
                 "logs/{batch}_vcf_converter.log".format(batch=config['batch_name']),
         script:
-                "scripts/vcfconverter.py"
+                "python scripts/vcfconverter.py -i {input} -o {output}"

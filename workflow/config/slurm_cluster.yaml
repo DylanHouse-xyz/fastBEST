@@ -1,0 +1,17 @@
+
+# Config profiles for slurm clustering scheduler. To use these configs, a standard template snakemake CLI would be;
+# snakemake -s Reconstruction-workflow.snakefile --latency-wait 60 --restart-times 2 --keep-going
+# --cluster-config config/cluster_slurm.yaml --cluster "sbatch -p {cluster.partition} --mem={cluster.mem}
+# -t {cluster.time} -c {cluster.ncpus} -n {cluster.ntasks} -o {cluster.output}" -j 100 -np (remove -np once dry run is successful)
+
+
+_default__:
+    partition: highmem
+    time: "48:0:0"
+    mem: 52G
+    ncpus: 8
+    ntasks: 1
+    output: logs/cluster/{rule}.%A.out
+
+
+

@@ -1,21 +1,9 @@
-ref:
-  fasta: "/path/to/fasta"
-  intervals: "/path/to/.bed/file"
-  germline: "/path/to/germline/resource"
+# General config for intervals, reference genome, germline resource, and list of chromosomes to run in parallel.
 
-bam_dir: "/path/to/bam/dir"
-batch_name: "<name-of-samples>"
+intervals: /path/to/intervals
 
+ref_genome: /path/to/genome
 
+germline_resource: /path/to/germline_resource
 
-samples:
-  normal: "<name-from-samtools>"
-  tumors:
-    - sample1
-    - sample2
-    - sample3
-    - sample4
-    - sample5
-    - sample6
-    - sample7
-    - sample8
+chromosomes: ['chr1','chr2','chr3','chr4','chr5','chr6','chr7','chr8','chr9','chr10','chr11','chr12','chr13','chr14','chr15','chr16','chr17','chr18','chr19','chr20','chr21','chr22','chrX', 'chrY']

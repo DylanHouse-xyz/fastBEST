@@ -15,3 +15,14 @@ _default__:
 
 
 
+Mutect2:
+    partition: highmem
+    time: "24:0:0"
+    mem: 52G
+    ncpus: 8
+    ntasks: 1
+    output: logs/cluster/{rule}.%A.out
+
+
+
+

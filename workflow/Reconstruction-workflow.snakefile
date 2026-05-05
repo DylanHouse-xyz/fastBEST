@@ -10,7 +10,8 @@ configfile: "config/config.yaml"
 configfile: "config/samples.yaml"
 
 
-CHROMOSOMES = config["chromosomes"]
+INTERVAL_SHARD_COUNT = 24
+INTERVAL_SHARD_IDS = [str(i).zfill(4) for i in range(INTERVAL_SHARD_COUNT)]
 
 
 rule all:
@@ -24,33 +25,48 @@ rule all:
 
 
 
-# Mutect2 somatic variant call rule to output vcf, stats, and artifacts split per chromosome
+
+rule split_intervals:
+    output:
+        expand("results/intervals/{scatter}-scattered.interval_list", scatter=INTERVAL_SHARD_IDS),
+    params:
+        intervals = config["intervals"],
+        reference = config["ref_genome"],
+        scatter_count = INTERVAL_SHARD_COUNT
+    shell:
+        "gatk SplitIntervals "
+        "-R {params.reference} "
+        "-L {params.intervals} "
+        "--scatter-count {params.scatter_count} "
+        "-O results/intervals"
+
+
+# Mutect2 somatic variant call rule to output vcf, stats, and artifacts split per interval shard
 rule Mutect2:
     input:
         tumor_bam = lambda wildcards: config["samples"][wildcards.tumor][0],
         normal_bam = lambda wildcards: config["samples"][wildcards.tumor][2],
+        intervals = "results/intervals/{scatter}-scattered.interval_list"
     output:
-        vcf = temp("results/{tumor}/unfiltered_{chromosomes}.vcf.gz"),
-        tar = temp("results/{tumor}/unfiltered_{chromosomes}_f1r2.tar.gz"),
-        stats = temp("results/{tumor}/unfiltered_{chromosomes}.vcf.gz.stats")
+        vcf = temp("results/{tumor}/unfiltered_{scatter}.vcf.gz"),
+        tar = temp("results/{tumor}/unfiltered_{scatter}_f1r2.tar.gz"),
+        stats = temp("results/{tumor}/unfiltered_{scatter}.vcf.gz.stats")
     threads: 4
     resources: 
         mem_mb = 24000
     params:
         ref = config["ref_genome"],
-        intervals = config["ref_genome"],
         germ = config["germline_resource"],
         tumor_input = lambda wildcards, input: " ".join([f"-I {b}" for b in input.tumor_bam])
     log:
-        "logs/mutect2/{tumor}_{chromosomes}_mutect2.txt",
+        "logs/mutect2/{tumor}_{scatter}_mutect2.txt",
     shell:
         "(gatk Mutect2 "
         "-R {params.ref} "
         "{params.tumor_input} "
         "-I {input.normal_bam} "
         "--germline-resource {params.germ} "
-        "--intervals {wildcards.chromosomes} "
-        "-L {params.intervals} "
+        "-L {input.intervals} "
         "--f1r2-tar-gz {output.tar} "
         "--native-pair-hmm-threads {threads} "
         "--java-options '-Xmx16g -XX:+UseParallelGC' "
@@ -60,7 +76,7 @@ rule Mutect2:
 # Merge all vcf.gz.stats
 rule merge_mutect_stats:
     input:
-        stats = expand("results/{{tumors}}/unfiltered_{chromosome}.vcf.gz.stats", chromosome=CHROMOSOMES),
+        stats = expand("results/{{tumors}}/unfiltered_{scatter}.vcf.gz.stats", scatter=INTERVAL_SHARD_IDS),
     output:
         protected("results/{tumors}/mutect_merged.stats"),
     log:
@@ -74,7 +90,7 @@ rule merge_mutect_stats:
 
 rule learn_read_orientation_model:
     input:
-        tar = expand("results/{{tumors}}/unfiltered_{chromosome}_f1r2.tar.gz", chromosome=CHROMOSOMES),
+        tar = expand("results/{{tumors}}/unfiltered_{scatter}_f1r2.tar.gz", scatter=INTERVAL_SHARD_IDS),
     output:
         protected("results/{tumors}/read_orientation_model.tar.gz"),
     log:
@@ -88,7 +104,7 @@ rule learn_read_orientation_model:
 
 rule Merge_Results:
     input:
-        vcfs = expand("results/{{tumors}}/unfiltered_{chromosome}.vcf.gz", chromosome=CHROMOSOMES),
+        vcfs = expand("results/{{tumors}}/unfiltered_{scatter}.vcf.gz", scatter=INTERVAL_SHARD_IDS),
     output:
         vcf = temp("results/{tumors}/final_unfiltered_merged.vcf.gz"),
     params:
@@ -120,9 +136,12 @@ rule get_pileup_summary_normal:
         protected("results/{tumors}/normal_pileup_summaries.table"),
     params:
         known_polymorphic_sites = config["known_polymorphic_sites"],
+        tumor = lambda wildcards, input: config["samples"][wildcards.tumors][2] 
+    log:
+        "log/get_pileup_summary_normal/{tumors}_get_pileup_summaries.txt"
     shell:
         "(gatk GetPileupSummaries "
-        "-I {input} "
+        "-I {params.tumor} "
         "-V {params.known_polymorphic_sites} "
         "-L {params.known_polymorphic_sites} "
         "-O {output}) 2> {log}"
@@ -138,7 +157,8 @@ rule calculate_contamination:
         "logs/calculate_contamination/{tumors}_calculate_contamination.txt",
     shell:
         "(gatk CalculateContamination "
-        "-I {input} "
+        "-I {input.summary_table} "
+        "-I {input.normal_summary} "
         "-tumor-segmentation {otput.segments_table} "
         "-matched {input.normal_summary} "
         "-O {output.contamination_table}) 2> {log}"

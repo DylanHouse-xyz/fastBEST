@@ -57,7 +57,8 @@ rule Mutect2:
     params:
         ref = config["ref_genome"],
         germ = config["germline_resource"],
-        tumor_input = lambda wildcards, input: " ".join([f"-I {b}" for b in input.tumor_bam])
+        tumor_input = lambda wildcards, input: " ".join([f"-I {b}" for b in input.tumor_bam]),
+        normal_name = lambda wildcards, input: config["samples"][wildcards.tumor][1]
     log:
         "logs/mutect2/{tumor}_{scatter}_mutect2.txt",
     shell:
@@ -65,6 +66,7 @@ rule Mutect2:
         "-R {params.ref} "
         "{params.tumor_input} "
         "-I {input.normal_bam} "
+        "-normal {params.normal_name} "
         "--germline-resource {params.germ} "
         "-L {input.intervals} "
         "--f1r2-tar-gz {output.tar} "

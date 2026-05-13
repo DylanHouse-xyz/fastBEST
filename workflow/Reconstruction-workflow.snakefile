@@ -172,11 +172,13 @@ rule filter_mutect_calls:
         mutect_stats = "results/{tumors}/mutect_merged.stats",
         segments_table = "results/{tumors}/segments.table",
         contamination_table = "results/{tumors}/contamination.table",
+        intervals = config["intervals"],
     output:
         filtered_vcf = protected("results/{tumors}/filtered_all.vcf.gz"),
         filtering_stats = protected("results/{tumors}/filtering_stats.tsv"),
     params:
         reference_genome = config["ref_genome"],
+        max_events_in_region = 1,
     log:
         "logs/filter_mutect_calls/{tumors}_filter_mutect_calls.txt",
     shell:
@@ -186,13 +188,24 @@ rule filter_mutect_calls:
         "--tumor-segmentation {input.segments_table} "
         "--contamination-table {input.contamination_table} "
         "--ob-priors {input.read_orientation_model} "
+        "--max-events-in-region {params.max_events_in_region} "
         "--stats {input.mutect_stats} "
         "--filtering-stats {output.filtering_stats} "
         "-O {output.filtered_vcf}) 2> {log}"
 
-rule extract_pass_variants:
+rule filter_ffpe_artifacts:
     input:
         filtered_vcf = "results/{tumors}/filtered_all.vcf.gz",
+    output:
+        ffpe_filtered_vcf = protected("results/{tumors}/filtered_no_ffpe_artifacts.vcf.gz"),
+    log:
+        "logs/filter_ffpe_artifacts/{tumors}_filter_ffpe_artifacts.txt",
+    shell:
+        """ (bcftools view -e '((REF="C" && ALT="T") || (REF="G" && ALT="A"))' {input.filtered_vcf} -O z -o {output.ffpe_filtered_vcf} && bcftools index -t {output.ffpe_filtered_vcf}) > {log} 2>&1"""
+
+rule extract_pass_variants:
+    input:
+        filtered_vcf = "results/{tumors}/filtered_no_ffpe_artifacts.vcf.gz",
     output:
         pass_variants_vcf = protected("results/{tumors}/pass_variants.vcf.gz"),
     params:
@@ -204,6 +217,7 @@ rule extract_pass_variants:
         "-R {params.reference_genome} "
         "-V {input.filtered_vcf} "
         "--exclude-filtered "
+        "--select-type-to-include SNP "
         "--create-output-variant-index "
         "-O {output.pass_variants_vcf}) 2> {log}"
 
@@ -212,10 +226,10 @@ rule vcf_converter:
         input:
                 vcf="results/{tumors}/pass_variants.vcf.gz",
         output:
-                protected("results/{tumors}/af_matrix,csv"),
+                matrix=protected("results/{tumors}/af_matrix.csv"),
         log:
                 "logs/{tumors}/vcf_converter.log",
-        script:
-                "python scripts/vcfconverter.py -i {{input}} -o {{output}}"
+        shell:
+                "python scripts/vcfconverter.py -i {input.vcf} -o {output.matrix}"
 
 

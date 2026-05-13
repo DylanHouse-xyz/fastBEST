@@ -1,28 +1,34 @@
+# SLURM cluster configuration for this workflow.
+# Am example usage:
+# snakemake -s Reconstruction-workflow.snakefile \
+#   --latency-wait 60 --restart-times 2 --keep-going \
+#   --cluster-config workflow/config/slurm_cluster.yaml \
+#   --cluster "sbatch -p {cluster.partition} --mem={cluster.mem} -t {cluster.time} -c {cluster.ncpus} -n {cluster.ntasks} -o {cluster.output}" \
+#   -j 100
 
-# Config profiles for slurm clustering scheduler. To use these configs, a standard template snakemake CLI would be;
-# snakemake -s Reconstruction-workflow.snakefile --latency-wait 60 --restart-times 2 --keep-going
-# --cluster-config config/cluster_slurm.yaml --cluster "sbatch -p {cluster.partition} --mem={cluster.mem}
-# -t {cluster.time} -c {cluster.ncpus} -n {cluster.ntasks} -o {cluster.output}" -j 100 -np (remove -np once dry run is successful)
-
-
-_default__:
-    partition: highmem
-    time: "48:0:0"
-    mem: 52G
-    ncpus: 8
+__default__:
+    partition: normal
+    time: "08:00:00"
+    mem: 16G
+    ncpus: 4
     ntasks: 1
     output: logs/cluster/{rule}.%A.out
-
 
 
 Mutect2:
     partition: highmem
-    time: "24:0:0"
-    mem: 52G
-    ncpus: 8
+    time: "24:00:00"
+    mem: 20G
+    ncpus: 4
+    ntasks: 1
+    output: logs/cluster/{rule}.%A_%a.out
+
+
+
+vcf_converter:
+    partition: MSC
+    time: "00:03:00"
+    mem: 2G
+    ncpus: 1
     ntasks: 1
     output: logs/cluster/{rule}.%A.out
-
-
-
-

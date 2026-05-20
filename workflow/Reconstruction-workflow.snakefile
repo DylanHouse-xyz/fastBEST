@@ -1,8 +1,6 @@
 # Entire workflow from splitting intervals to Mutect2 variant calling and filtering: followed by
 # phylogenetic reconstruction with fastBE.
 
-# Mutect2 workflow modified from https://github.com/GavinHaLab/mutect2_snakemake
-
 # Ensure to run snakemake with snakemake -s Reconstruction-workflow
 
 
@@ -121,7 +119,7 @@ rule get_pileup_summaries:
         protected("results/{tumors}/pileup_summaries.table")
     params:
         known_polymorphic_sites = config["known_polymorphic_sites"],
-        tumors = lambda wildcards, input: " ".join([f"=I {b}" for b in input.tumor_bam]),
+        tumors = lambda wildcards, input: " ".join([f"-I {b}" for b in input.tumor_bam]),
     log:
         "logs/get_pileup_summaries/{tumors}_get_pileup_summaries.txt"
     shell:
@@ -231,5 +229,20 @@ rule vcf_converter:
                 "logs/{tumors}/vcf_converter.log",
         shell:
                 "python scripts/vcfconverter.py -i {input.vcf} -o {output.matrix}"
+
+
+rule fastbe_search:
+    input:
+        af_matrix = "results/{tumors}/af_matrix.csv"
+    output:
+        tree = protected("results/{tumors}/fastbe/{tumors}")
+        metadata = protected("results/{tumors}/fastbe/{tumors}.json")
+    log:
+        "logs/{tumors}/fastbe_search.log"
+    threads = 32
+    
+    shell:
+        "fastbe search {input.af_matrix} -o {output.tree} -t 32 -f1" 
+
 
 

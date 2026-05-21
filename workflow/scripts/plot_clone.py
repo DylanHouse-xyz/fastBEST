@@ -42,7 +42,14 @@ def build_and_draw_clone_tree(adjacency_list_file, mutation_to_clone, ax=None):
                 # Connect only if the mutation meets a distinct sub-clone
                 if ancestor_clone != descendent_clone:
                     clone_tree.add_edge(ancestor_clone, descendent_clone)
+                    parents = list(clone_tree.predecessors(descendent_clone))
+                    print(f"Parents of {descendent_clone}: {parents}")
+                    
+    
 
+                    
+    
+    
     # Draw the phylogenetic tree
     pos = graphviz_layout(clone_tree, prog="dot")
     labels = {node: node for node in clone_tree.nodes()}

@@ -1,13 +1,13 @@
 import argparse
+
 import numpy as np
 import pandas as pd
-
 
 
 def get_ccf(mutation_to_clone, vaf_matrix, filepath):
     """
     Calculates the cancer cell fraction (CCF) & the clonal composition in
-    cancer samples from outputs of fastBE cluster. 
+    cancer samples from outputs of fastBE cluster.
 
         Args:
             mutation_to_clone: CSV file containing cluster to mutation data
@@ -52,10 +52,6 @@ def get_ccf(mutation_to_clone, vaf_matrix, filepath):
 
     # Multiply by 2 to get CCF
     ccf_matrix = avg_vaf_matrix * 2
-    
-    # Normalize CCF per sample
-    sample_sum = ccf_matrix.sum(axis=1, keepdims=True)
-    ccf_matrix = np.divide(ccf_matrix, sample_sum)
 
     ccf_df = pd.DataFrame(ccf_matrix, columns=unique_clusters)
     ccf_df.index.name = "Sample_Index"
@@ -71,9 +67,9 @@ def main():
     args = parser.parse_args()
 
     if args.Cluster_Variant and args.VAF_Matrix:
-        get_ccf(args.Cluster_Variant, args.VAF_Matrix, args.output)     
+        get_ccf(args.Cluster_Variant, args.VAF_Matrix, args.output)
     else:
         raise ValueError("Ensure to input both cluster-variant csv file from fastBE output & the VAF .txt matrix in fastBE format")
-        
+
 if __name__ == "__main__":
     main()

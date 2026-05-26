@@ -4,6 +4,7 @@ def get_optimal_clones(wildcards):
     with open(checkpoint_output, "r") as f:
         k_value = f.read().strip()
     return k_value
+
 # Searches for the most optimal adjacency list for a given frequency matrix
 rule fastbe_search:
     input:
@@ -49,9 +50,9 @@ rule optimized_fastbe_cluster:
         tree = rules.fastbe_search.output.tree,
         k_file = checkpoint.find_kneedle_point.output.optimal_clones
     output:
-        cluster = "results/{tumors}/fastbe/fastbe_optimized_k{k}_clustering.csv",
-        meta = "results/{tumors}/fastbe/fastbe_optimized_k{k}_clustering_results.json"
+        cluster = "results/{tumors}/fastbe/fastbe_optimized_k_clustering.csv",
+        meta = "results/{tumors}/fastbe/fastbe_optimized_k_clustering_results.json"
     params:
         k = lambda wildcards: get_optimal_clones(wildcards)
     shell:
-        "fastbe cluster -k {params.k} -o results/{tumors}/fastbe/fastbe_optimized_k{params.k} {input.tree} {input.matrix}"
+        "fastbe cluster -k {params.k} -o results/{tumors}/fastbe/fastbe_optimized_k {input.tree} {input.matrix}"

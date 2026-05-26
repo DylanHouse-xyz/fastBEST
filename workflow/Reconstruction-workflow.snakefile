@@ -15,6 +15,7 @@ include: "rules/mutect2.smk"
 include: "rules/filter.smk"
 include: "rules/get_variants.smk"
 include: "rules/fastbe.smk"
+include: "rules/analysis.smk"
 
 rule all:
     input:
@@ -25,4 +26,6 @@ rule all:
         expand("results/{tumors}/pass_variants.vcf.gz", tumors = config["samples"]),
         expand("results/{tumors}/af_matrix.csv", tumors = config["samples"]),
         expand("results/{tumors}/fastbe/fastbe_optimized_k_clustering.csv", tumors = config["samples"]),
-        expand("results/{tumors}/fastbe/fastbe_optimized_k_clustering_results.json", tumors = config["samples"])
+        expand("results/{tumors}/fastbe/fastbe_optimized_k_clustering_results.json", tumors = config["samples"]),
+        expand("results/{tumors}/{tumors}_ccf.csv"),
+        expand("scripts/clonal_lineage_trees.png")

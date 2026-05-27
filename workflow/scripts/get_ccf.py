@@ -17,6 +17,8 @@ def get_ccf(mutation_to_clone, vaf_matrix, filepath):
         Returns:
             A CSV file containing the CCF data per clone and sample.
     """
+    threshold = 0.05
+
     clusters_df = pd.read_csv(mutation_to_clone)
     clusters_df = clusters_df.sort_values("mutation", ascending = True).reset_index(drop = True)
     unique_clusters = sorted(clusters_df["clone"].unique())
@@ -55,6 +57,8 @@ def get_ccf(mutation_to_clone, vaf_matrix, filepath):
 
     # Multiply by 2 to get CCF (assume diploid)
     ccf_matrix = avg_vaf_matrix * 2
+    ccf_matrix = np.where(ccf_matrix < threshold, 0.0, ccf_matrix)
+
 
     ccf_df = pd.DataFrame(ccf_matrix, columns=unique_clusters)
     ccf_df.index.name = "Sample_Index"
@@ -63,7 +67,7 @@ def get_ccf(mutation_to_clone, vaf_matrix, filepath):
     return ccf_df
 
 def plot_ccf(df):
-    ccf_df.plot(kind = 'bar', stacked = 'True', Title = 'Cancer Cell Fraction Proportion', use_index = True)
+    df.plot(kind = 'bar', stacked = 'True', title = 'Cancer Cell Fraction Proportion', use_index = True)
     output_png = "ccf.png"
     plt.savefig(output_png, dpi=300)
     

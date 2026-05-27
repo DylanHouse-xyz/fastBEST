@@ -1,0 +1,13 @@
+name: scripts
+channels:
+    - conda-forge
+    - defaults
+    - bioconda
+dependencies:
+    - cyvcf=0.8.0*
+    - python=3.6*
+    - pandas
+    - numpy
+    - networkx
+    - matplotlib
+    - pygraphviz=1.14*

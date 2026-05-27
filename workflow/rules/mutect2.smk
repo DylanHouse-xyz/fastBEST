@@ -7,6 +7,8 @@ rule split_intervals:
         intervals = config["intervals"],
         reference = config["ref_genome"],
         scatter_count = INTERVAL_SHARD_COUNT
+    conda:
+        "envs/mutect2.yaml"
     shell:
         "gatk SplitIntervals "
         "-R {params.reference} "
@@ -32,6 +34,8 @@ rule Mutect2:
         germ = config["germline_resource"],
         tumor_input = lambda wildcards, input: " ".join([f"-I {b}" for b in input.tumor_bam]),
         normal_name = lambda wildcards, input: config["samples"][wildcards.tumor][1]
+    conda:
+        "envs/mutect2.yaml"
     log:
         "logs/mutect2/{tumor}_{scatter}_mutect2.txt",
     shell:
@@ -57,6 +61,8 @@ rule merge_mutect_stats:
         "logs/merge_mutect_stats/{tumors}_merge_mutect_stats.txt",
     params:
         stats_flags = lambda wildcards, input: " ".join([f"-stats {f}" for f in input.stats]),
+    conda:
+        "envs/mutect2.yaml"
     shell:
         "(gatk MergeMutectStats "
         "{params.stats_flags} "
@@ -69,5 +75,7 @@ rule Merge_Results:
         vcf = temp("results/{tumors}/final_unfiltered_merged.vcf.gz"),
     params:
         vcf_list = lambda wildcards, input: " ".join([f"-I {v}" for v in input.vcfs]),
+    conda:
+        "envs/mutect2.yaml"
     shell:
         "gatk MergeVcfs {params.vcf_list} -O {output.vcf}"

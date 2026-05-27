@@ -5,6 +5,8 @@ rule extract_pass_variants:
         pass_variants_vcf = protected("results/{tumors}/pass_variants.vcf.gz"),
     params:
         reference_genome = config["ref_genome"],
+    conda:
+        "envs/mutect2.yaml"
     log:
         "logs/extract_pass_variants/{tumors}_extract_pass_variants.txt",
     shell:

@@ -2,6 +2,7 @@ import argparse
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def get_ccf(mutation_to_clone, vaf_matrix, filepath):
@@ -35,7 +36,9 @@ def get_ccf(mutation_to_clone, vaf_matrix, filepath):
     num_clusters = len(unique_clusters)
     sum_matrix = np.zeros((num_samples, num_clusters))
 
-    # Iterates over matrix of zeros though variant and sample index and replaces value with that of the VAF matrix value. We then find the clone it belongs to.
+    # Iterates over matrix of zeros though variant and sample index and
+    # replaces value with that of the VAF matrix value. We then find the
+    # clone it belongs to.
     for sample_idx in range(num_samples):
         for variant_idx in range(num_variants):
 
@@ -50,15 +53,20 @@ def get_ccf(mutation_to_clone, vaf_matrix, filepath):
 
     avg_vaf_matrix = sum_matrix / cluster_counts_vector
 
-    # Multiply by 2 to get CCF
+    # Multiply by 2 to get CCF (assume diploid)
     ccf_matrix = avg_vaf_matrix * 2
 
     ccf_df = pd.DataFrame(ccf_matrix, columns=unique_clusters)
     ccf_df.index.name = "Sample_Index"
-
     ccf_df.to_csv(filepath)
     print("CCF file produced in specified directory")
+    return ccf_df
 
+def plot_ccf(df):
+    ccf_df.plot(kind = 'bar', stacked = 'True', Title = 'Cancer Cell Fraction Proportion', use_index = True)
+    output_png = "ccf.png"
+    plt.savefig(output_png, dpi=300)
+    
 def main():
     parser = argparse.ArgumentParser("Calculates the cancer cell fraction from fastBE's cluster output and VAF matrix")
     parser.add_argument('Cluster_Variant', help = "The cluster-variant .csv file")
@@ -67,7 +75,9 @@ def main():
     args = parser.parse_args()
 
     if args.Cluster_Variant and args.VAF_Matrix:
-        get_ccf(args.Cluster_Variant, args.VAF_Matrix, args.output)
+        df = get_ccf(args.Cluster_Variant, args.VAF_Matrix, args.output)
+        plot_ccf(df)
+
     else:
         raise ValueError("Ensure to input both cluster-variant csv file from fastBE output & the VAF .txt matrix in fastBE format")
 

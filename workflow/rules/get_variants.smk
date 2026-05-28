@@ -21,10 +21,12 @@ rule extract_pass_variants:
 
 rule vcf_converter:
         input:
-                vcf="results/{tumors}/pass_variants.vcf.gz",
+            vcf="results/{tumors}/pass_variants.vcf.gz",
         output:
-                matrix=protected("results/{tumors}/af_matrix.csv"),
+            matrix=protected("results/{tumors}/af_matrix.csv"),
         log:
-                "logs/{tumors}/vcf_converter.log",
+            "logs/{tumors}/vcf_converter.log",
+        conda:
+            "envs/scripts.yaml"
         shell:
-                "python scripts/vcfconverter.py -i {input.vcf} -o {output.matrix}"
+            "python3 scripts/vcfconverter.py -i {input.vcf} -o {output.matrix}"

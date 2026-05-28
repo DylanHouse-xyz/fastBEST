@@ -16,6 +16,8 @@ rule fastbe_search:
         name = "results/{tumors}/fastbe/{tumors}"
     log:
         "logs/{tumors}/fastbe_search.log"
+    conda:
+        "envs/fastbe.yaml"
     threads: 32
     resources:
         mem_mb = 24000
@@ -31,6 +33,8 @@ rule initial_fastbe_cluster:
         meta_file = "results/{tumors}/fastbe/initial_cluster/initial_clustering_results.json"
     params:
         meta_dir = directory("results/{tumors}/fastbe/initial_cluster")
+    conda:
+        "envs/fastbe.yaml"
     shell:
         "mkdir -p results/{tumors}/fastbe/initial_cluster && "
         "fastbe cluster -k 6 -o {params.meta_dir}/initial {input.tree} {input.af_matrix}"
@@ -41,6 +45,8 @@ checkpoint find_kneedle_point:
         meta = rules.initial_fastbe_cluster.output.meta_file
     output:
         optimal_clones = "results/{tumors}/fastbe/optimal_clones.txt"
+    conda:
+        "envs/scripts.yaml"
     shell:
         "python3 find_mutation.py -i {input.meta} -o {output.optimal_clones}"
 
@@ -54,5 +60,7 @@ rule optimized_fastbe_cluster:
         meta = "results/{tumors}/fastbe/fastbe_optimized_k_clustering_results.json"
     params:
         k = lambda wildcards: get_optimal_clones(wildcards)
+    conda:
+        "envs/fastbe.yaml"
     shell:
         "fastbe cluster -k {params.k} -o results/{tumors}/fastbe/fastbe_optimized_k {input.tree} {input.matrix}"

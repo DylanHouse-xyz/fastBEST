@@ -1,13 +1,14 @@
 import argparse
+
 import matplotlib.pyplot as plt
 import networkx as nx
-from networkx.drawing.nx_agraph import graphviz_layout
 import pandas as pd
+from networkx.drawing.nx_agraph import graphviz_layout
 
 
 def get_clone(cluster_file):
     """
-    Reads input csv file and returns a pandas series 
+    Reads input csv file and returns a pandas series
     """
     df = pd.read_csv(cluster_file, header = None)
     return df.set_index(0)[1]
@@ -22,7 +23,7 @@ def build_and_draw_clone_tree(adjacency_list_file, mutation_to_clone, ax=None):
             mutation_to_clone: CSV file containing cluster to mutation data
         Returns:
             A clonal tree
-                
+
     """
     clone_tree = nx.DiGraph()
 
@@ -44,12 +45,12 @@ def build_and_draw_clone_tree(adjacency_list_file, mutation_to_clone, ax=None):
                     clone_tree.add_edge(ancestor_clone, descendent_clone)
                     parents = list(clone_tree.predecessors(descendent_clone))
                     print(f"Parents of {descendent_clone}: {parents}")
-                    
-    
 
-                    
-    
-    
+
+
+
+
+
     # Draw the phylogenetic tree
     pos = graphviz_layout(clone_tree, prog="dot")
     labels = {node: node for node in clone_tree.nodes()}
@@ -63,6 +64,7 @@ def main():
     )
     parser.add_argument("--cluster",required=True, help="CSV file mapping individual mutations to their designated clone/cluster assignment.")
     parser.add_argument("adjacency_lists",help="One or more text files containing mutation adjacency hierarchies.",nargs="+")
+    parser.add_argument('-o', '--output',help="The directory in which the clonal tree will be stored." )
     args = parser.parse_args()
 
     # Map unique clones to mutations
@@ -75,7 +77,7 @@ def main():
     for i, adjacency_list_file in enumerate(args.adjacency_lists):
         build_and_draw_clone_tree(adjacency_list_file, mutation_to_clone, axes[i])
 
-    output_png = "clonal_lineage_trees.png"
+    output_png = args.output
     plt.savefig(output_png, dpi=300)
 
 

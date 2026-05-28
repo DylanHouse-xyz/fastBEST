@@ -1,0 +1,7 @@
+name: fastbe
+channels:
+    - conda-forge
+    - defaults
+    - schmidt73
+dependencies:
+    - fastbe

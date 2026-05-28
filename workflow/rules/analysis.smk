@@ -20,9 +20,9 @@ rule plot_tree:
         clone_map = rules.optimized_fastbe_cluster.output.cluster
         adjacency_list = rules.fastbe_search.output.tree
     output:
-        phylogenetic_tree = "clonal_lineage_trees.png"
+        phylogenetic_tree = "results/{tumors}/tree/clonal_evolution.png"
     conda:
         "envs/scripts.yaml"
     shell:
-        "mkdir -p results{tumors}/tree && "
+        "mkdir -p results/{tumors}/tree && "
         "python3 scripts/plot_clone.py --cluster {input.clone_map} {input.adjacency_list}"

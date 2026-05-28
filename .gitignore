@@ -1,2 +1,36 @@
+
+# Snakemake & script cache
 workflow/.snakemake/*
 workflow/scripts/__pycache__/*
+
+
+# Potential editors (I use neovim btw)
+*.vscode/*
+*.zed/*
+
+
+# Prevent any possible leakage of sensitive data :) (that would be bad)
+*.fa*
+*.FA*
+*.ba*
+*.BA*
+*.bed*
+*.gz*
+*.png*
+*.txt*
+*.csv*
+
+
+## Core latex/pdflatex auxiliary files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb

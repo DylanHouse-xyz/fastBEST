@@ -3,7 +3,7 @@
 
 rule get_ccf:
     input:
-        matrix = rules.vcf_converter.output.matrix
+        matrix = rules.vcf_converter.output.matrix,
         clone_map = rules.optimized_fastbe_cluster.output.cluster
     output:
         ccf = "results/{tumors}/{tumors}_ccf.csv"
@@ -17,7 +17,7 @@ rule get_ccf:
 
 rule plot_tree:
     input:
-        clone_map = rules.optimized_fastbe_cluster.output.cluster
+        clone_map = rules.optimized_fastbe_cluster.output.cluster,
         adjacency_list = rules.fastbe_search.output.tree
     output:
         phylogenetic_tree = "results/{tumors}/tree/clonal_evolution.png"

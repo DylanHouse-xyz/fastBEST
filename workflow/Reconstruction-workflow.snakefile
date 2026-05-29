@@ -27,5 +27,5 @@ rule all:
         expand("results/{tumors}/af_matrix.csv", tumors = config["samples"]),
         expand("results/{tumors}/fastbe/fastbe_optimized_k_clustering.csv", tumors = config["samples"]),
         expand("results/{tumors}/fastbe/fastbe_optimized_k_clustering_results.json", tumors = config["samples"]),
-        expand("results/{tumors}/{tumors}_ccf.csv"),
+        expand("results/{tumors}/{tumors}_ccf.csv", tumors = config["samples"]),
         expand("scripts/clonal_lineage_trees.png")

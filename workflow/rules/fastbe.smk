@@ -15,12 +15,14 @@ rule fastbe_search:
     params:
         name = "results/{tumors}/fastbe/{tumors}"
     log:
-        "logs/{tumors}/fastbe_search.log"
+        "logs/{tumors}/fastbe/fastbe_search.log"
     conda:
         "envs/fastbe.yaml"
     threads: 32
     resources:
         mem_mb = 24000
+    message:
+        "Searching for optimal tree for a given frequency matrix"
     shell:
         "fastbe search {input.tree} -o {params.name} -f 1"
 
@@ -35,6 +37,8 @@ rule initial_fastbe_cluster:
         meta_dir = directory("results/{tumors}/fastbe/initial_cluster")
     conda:
         "envs/fastbe.yaml"
+    log:
+       "logs/{tumors}/fastbe/fastbe_cluster.log"
     shell:
         "mkdir -p results/{tumors}/fastbe/initial_cluster && "
         "fastbe cluster -k 6 -o {params.meta_dir}/initial {input.tree} {input.af_matrix}"

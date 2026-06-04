@@ -11,6 +11,7 @@ configfile: "config/samples.yaml"
 INTERVAL_SHARD_COUNT = 24
 INTERVAL_SHARD_IDS = [str(i).zfill(4) for i in range(INTERVAL_SHARD_COUNT)]
 
+include: "rules/alignment.smk"
 include: "rules/mutect2.smk"
 include: "rules/filter.smk"
 include: "rules/get_variants.smk"
@@ -19,6 +20,8 @@ include: "rules/analysis.smk"
 
 rule all:
     input:
+        expand("results/fastqc/{read}_r{num}.html", read=list(config["reads"].keys()), num=[1,2]),
+        expand("results/fastqc/{read}_r{num}_fastqc.zip", read=list(config["reads"].keys()), num=[1,2]),
         expand("results/{tumors}/mutect_merged.stats", tumors = config["samples"]),
         expand("results/{tumors}/read_orientation_model.tar.gz", tumors = config["samples"]),
         expand("results/{tumors}/filtered_all.vcf.gz", tumors = config["samples"]),

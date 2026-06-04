@@ -18,7 +18,9 @@ workflow/scripts/__pycache__/*
 *.gz*
 *.png
 *.txt*
-*.csv*
+*.csv
+*.fq
+*.fq.gz
 
 
 ## Core latex/pdflatex auxiliary files

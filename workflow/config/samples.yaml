@@ -5,3 +5,12 @@ samples:
   - [/path/to/P1, /path/to/m1.bam, /path/to/m2.bam]
   - normal_name
   - /path/to/normal.bam
+
+
+
+
+# This is for one read sample.
+reads:
+ read_name:
+  - [/path/to/r1, /path/to/r2]
+     

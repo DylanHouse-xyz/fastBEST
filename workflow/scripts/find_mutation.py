@@ -40,7 +40,7 @@ def collect_data(input_path: str) -> tuple[list[int], list[int]]:
 def find_knee_point(number_of_clones: list[int], objective_value: list[int]) -> int:
     if not number_of_clones or not objective_value:
         return None
-    kn = KneeLocator(number_of_clones, objective_value, curve='convex', direction='decreasing')
+    kn = KneeLocator(number_of_clones, objective_value, curve='concave', direction='decreasing')
     return kn.knee
 
 

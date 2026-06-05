@@ -28,5 +28,5 @@ rule plot_tree:
     message:
         "Plotting a clonal tree."
     shell:
-        "mkdir -p results/{tumors}/tree && "
+        "mkdir -p results/{wildcards.tumors}/tree && "
         "python3 scripts/plot_clone.py --cluster {input.clone_map} {input.adjacency_list}"

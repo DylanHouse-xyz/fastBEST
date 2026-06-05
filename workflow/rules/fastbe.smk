@@ -24,7 +24,7 @@ rule fastbe_search:
     message:
         "Searching for optimal tree for a given frequency matrix"
     shell:
-        "fastbe search {input.tree} -o {params.name} -f 1"
+        "fastbe search {input.af_matrix} -o {params.name}"
 
 # Initial cluster of variants with arbitrary clones
 rule initial_fastbe_cluster:
@@ -40,7 +40,7 @@ rule initial_fastbe_cluster:
     log:
        "logs/{tumors}/fastbe/fastbe_cluster.log"
     shell:
-        "mkdir -p results/{tumors}/fastbe/initial_cluster && "
+        "mkdir -p results/{wildcards.tumors}/fastbe/initial_cluster && "
         "fastbe cluster -k 6 -o {params.meta_dir}/initial {input.tree} {input.af_matrix}"
 
 # Find optimal number of clones using the kneedle algorithm
@@ -67,4 +67,4 @@ rule optimized_fastbe_cluster:
     conda:
         "envs/fastbe.yaml"
     shell:
-        "fastbe cluster -k {params.k} -o results/{tumors}/fastbe/fastbe_optimized_k {input.tree} {input.matrix}"
+        "fastbe cluster -k {params.k} -o results/{wildcards.tumors}/fastbe/fastbe_optimized_k {input.tree} {input.matrix}"

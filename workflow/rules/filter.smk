@@ -31,7 +31,7 @@ rule get_pileup_summaries:
     shell:
         "(gatk GetPileupSummaries "
         "{params.tumors} "
-        "-V {params.known_polymprhic_sites} "
+        "-V {params.known_polymorphic_sites} "
         "-L {params.known_polymorphic_sites} "
         "-O {output}) 2> {log}"
 
@@ -69,7 +69,7 @@ rule calculate_contamination:
         "(gatk CalculateContamination "
         "-I {input.summary_table} "
         "-I {input.normal_summary} "
-        "-tumor-segmentation {otput.segments_table} "
+        "-tumor-segmentation {output.segments_table} "
         "-matched {input.normal_summary} "
         "-O {output.contamination_table}) 2> {log}"
 

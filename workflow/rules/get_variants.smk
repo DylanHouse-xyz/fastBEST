@@ -42,5 +42,5 @@ rule append_column:
         "Appending a column of 1 to the variant allele frequency matrix. This rule is used when the root is unknown."
     shell:
         """
-        awk '{print "1.0", $0}' {input.matrix} > {output.af_matrix}
+        awk '{{print "1.0", $0}}' {input.matrix} > {output.af_matrix}
         """

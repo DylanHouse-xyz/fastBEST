@@ -8,7 +8,7 @@ def get_optimal_clones(wildcards):
 # Searches for the most optimal adjacency list for a given frequency matrix
 rule fastbe_search:
     input:
-        af_matrix = rules.vcf_converter.output.matrix
+        af_matrix = rules.append_column.output.af_matrix
     output:
         tree = "results/{tumors}/fastbe/{tumors}_tree.txt",
         meta = "results/{tumors}/fastbe/{tumors}_results.json"
@@ -29,7 +29,7 @@ rule fastbe_search:
 # Initial cluster of variants with arbitrary clones
 rule initial_fastbe_cluster:
     input:
-        af_matrix = rules.vcf_converter.output.matrix,
+        af_matrix = rules.append_column.output.af_matrix,
         tree = rules.fastbe_search.output.tree
     output:
         meta_file = "results/{tumors}/fastbe/initial_cluster/initial_clustering_results.json"
@@ -56,7 +56,7 @@ checkpoint find_kneedle_point:
 
 rule optimized_fastbe_cluster:
     input:
-        matrix = rules.vcf_converter.output.matrix,
+        matrix = rules.append_column.output.af_matrix,
         tree = rules.fastbe_search.output.tree,
         k_file = lambda wildcards: checkpoints.find_kneedle_point.get(**wildcards).output.optimal_clones
     output:

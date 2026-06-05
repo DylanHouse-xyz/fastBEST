@@ -57,7 +57,7 @@ rule get_pileup_summary_normal:
 rule calculate_contamination:
     input:
         summary_table = "results/{tumors}/pileup_summaries.table",
-        normal_summary = "resuts/{tumors}/normal_pileup_summaries.table",
+        normal_summary = "results/{tumors}/normal_pileup_summaries.table",
     output:
         segments_table = protected("results/{tumors}/segments.table"),
         contamination_table = protected("results/{tumors}/contamination.table")

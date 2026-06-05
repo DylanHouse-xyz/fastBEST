@@ -2,7 +2,7 @@
 # Snakemake & script cache
 workflow/.snakemake/*
 workflow/scripts/__pycache__/*
-
+*.swp
 
 # Potential editors (I use neovim btw)
 *.vscode/*

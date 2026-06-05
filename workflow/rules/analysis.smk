@@ -3,12 +3,14 @@
 
 rule get_ccf:
     input:
-        matrix = rules.vcf_converter.output.matrix,
+        matrix = rules.append_column.output.af_matrix,
         clone_map = rules.optimized_fastbe_cluster.output.cluster
     output:
         ccf = "results/{tumors}/{tumors}_ccf.csv"
     conda:
         "envs/scripts.yaml"
+    message:
+        "Calculating the cancer cell fraction (CCF) of each clone in each sample given a variant allele frequency (VAF) matrix and a clone-to-mutation map from fastBE." 
     shell:
         "python3 scripts/get_ccf.py {input.clone_map} {input.matrix} {output.ccf}"
 
@@ -23,6 +25,8 @@ rule plot_tree:
         phylogenetic_tree = "results/{tumors}/tree/clonal_evolution.png"
     conda:
         "envs/scripts.yaml"
+    message:
+        "Plotting a clonal tree."
     shell:
         "mkdir -p results/{tumors}/tree && "
         "python3 scripts/plot_clone.py --cluster {input.clone_map} {input.adjacency_list}"

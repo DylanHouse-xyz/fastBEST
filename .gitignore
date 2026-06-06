@@ -11,6 +11,8 @@ workflow/scripts/__pycache__/*
 
 # Prevent any possible leakage of sensitive data :) (that would be bad)
 workflow/data/*
+workflow/results/*
+workflow/workflow.sh
 *.fa*
 *.FA*
 *.ba*

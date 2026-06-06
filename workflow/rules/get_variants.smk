@@ -5,14 +5,21 @@ rule extract_pass_variants:
         pass_variants_vcf = protected("results/{tumors}/pass_variants.vcf.gz"),
     params:
         reference_genome = config["ref_genome"],
+    resources:
+        mem_mb = 1024,
+        runtime = "1m",
+        slurm_partition = "MSC"
     conda:
-        "envs/mutect2.yaml",
+        "../envs/mutect2.yaml",
     log:
         "logs/extract_pass_variants/{tumors}_extract_pass_variants.txt",
+    message:
+        "Extracting all variants that passed the filter. Outputs a pass_variants vcf."
     shell:
         "(gatk SelectVariants "
         "-R {params.reference_genome} "
         "-V {input.filtered_vcf} "
+        "--restrict-alleles-to BIALLELIC "
         "--exclude-filtered "
         "--select-type-to-include SNP "
         "--create-output-variant-index "
@@ -21,21 +28,31 @@ rule extract_pass_variants:
 
 rule vcf_converter:
     input:
-        vcf="results/{tumors}/pass_variants.vcf.gz",
+        vcf=rules.extract_pass_variants.output.pass_variants_vcf,
     output:
         matrix=protected("results/{tumors}/af_matrix.txt"),
+    resources:
+        mem_mb = 1024,
+        runtime = "1m",
+        slurm_partition = "MSC"
     log:
         "logs/{tumors}/vcf_converter.log",
     conda:
-        "envs/scripts.yaml",
+        "../envs/scripts.yaml",
+    message:
+        "Converting passed variants into a fastBE-ready format. Rows are samples and columns are distinct mutations."
     shell:
         "python3 scripts/vcfconverter.py -i {input.vcf} -o {output.matrix}"
 
 rule append_column:
     input:
-        matrix = rules.vcf_converter.input.vcf
+        matrix = rules.vcf_converter.output.matrix
     output:
         af_matrix = protected("results/{tumors}/af_matrix_root.txt")
+    resources:
+        mem_mb = 1024,
+        runtime = "1m",
+        slurm_partition = "MSC"
     log:
         "logs/{tumors}/append_column.log"
     message:

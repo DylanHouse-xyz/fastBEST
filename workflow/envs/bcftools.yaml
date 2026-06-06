@@ -1,8 +1,7 @@
 name: bcftools
 channels:
-    - conda-forge
-    - defaults
-    - bioconda
+  - conda-forge
+  - bioconda
+  - defaults
 dependencies:
-    - bcftools=1.13*
-    - python=3.11
+  - bcftools=1.13

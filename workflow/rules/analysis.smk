@@ -7,8 +7,12 @@ rule get_ccf:
         clone_map = rules.optimized_fastbe_cluster.output.cluster
     output:
         ccf = "results/{tumors}/{tumors}_ccf.csv"
+    resources:
+        mem_mb = 3000,
+        runtime = "2m",
+        slurm_partition = "normal"
     conda:
-        "envs/scripts.yaml"
+        "../envs/scripts.yaml"
     message:
         "Calculating the cancer cell fraction (CCF) of each clone in each sample given a variant allele frequency (VAF) matrix and a clone-to-mutation map from fastBE." 
     shell:
@@ -23,8 +27,12 @@ rule plot_tree:
         adjacency_list = rules.fastbe_search.output.tree
     output:
         phylogenetic_tree = "results/{tumors}/tree/clonal_evolution.png"
+    resources:
+        mem_mb = 3000,
+        runtime = "2m",
+        slurm_partition = "normal"
     conda:
-        "envs/scripts.yaml"
+        "../envs/scripts.yaml"
     message:
         "Plotting a clonal tree."
     shell:

@@ -9,8 +9,12 @@ rule learn_read_orientation_model:
         "logs/learn_read_orientation_model/{tumors}_learn_read_orientation_model.txt",
     params:
         tar_flags = lambda wildcards, input: " ".join([f"-I {f}" for f in input.tar]),
+    resources:
+        mem_mb = 8000,
+        runtime = "1h",
+        slurm_partition = "normal"
     conda:
-        "envs/mutect2.yaml"
+        "../envs/mutect2.yaml"
     shell:
         "(gatk LearnReadOrientationModel "
         "{params.tar_flags} "
@@ -24,8 +28,12 @@ rule get_pileup_summaries:
     params:
         known_polymorphic_sites = config["known_polymorphic_sites"],
         tumors = lambda wildcards, input: " ".join([f"-I {b}" for b in input.tumor_bam]),
+    resources:
+        mem_mb = 8000,
+        runtime = "1h",
+        slurm_partition = "normal"
     conda:
-        "envs/mutect2.yaml"
+        "../envs/mutect2.yaml"
     log:
         "logs/get_pileup_summaries/{tumors}_get_pileup_summaries.txt"
     shell:
@@ -43,10 +51,14 @@ rule get_pileup_summary_normal:
     params:
         known_polymorphic_sites = config["known_polymorphic_sites"],
         tumor = lambda wildcards, input: config["samples"][wildcards.tumors][2]
+    resources:
+        mem_mb = 8000,
+        runtime = "1h",
+        slurm_partition = "normal"
     conda:
-       "envs/mutect2.yaml" 
+       "../envs/mutect2.yaml" 
     log:
-        "log/get_pileup_summary_normal/{tumors}_get_pileup_summaries.txt"
+        "logs/get_pileup_summary_normal/{tumors}_get_pileup_summaries.txt"
     shell:
         "(gatk GetPileupSummaries "
         "-I {params.tumor} "
@@ -61,14 +73,17 @@ rule calculate_contamination:
     output:
         segments_table = protected("results/{tumors}/segments.table"),
         contamination_table = protected("results/{tumors}/contamination.table")
+    resources:
+        mem_mb = 8000,
+        runtime = "1h",
+        slurm_partition = "normal"
     conda:
-        "envs/mutect2.yaml"
+        "../envs/mutect2.yaml"
     log:
         "logs/calculate_contamination/{tumors}_calculate_contamination.txt",
     shell:
         "(gatk CalculateContamination "
         "-I {input.summary_table} "
-        "-I {input.normal_summary} "
         "-tumor-segmentation {output.segments_table} "
         "-matched {input.normal_summary} "
         "-O {output.contamination_table}) 2> {log}"
@@ -87,14 +102,21 @@ rule filter_mutect_calls:
     params:
         reference_genome = config["ref_genome"],
         max_events_in_region = 1,
+    resources:
+        mem_mb = 8000,
+        runtime = "30m",
+        slurm_partition = "normal"
     conda:
-        "envs/mutect2.yaml"
+        "../envs/mutect2.yaml"
     log:
         "logs/filter_mutect_calls/{tumors}_filter_mutect_calls.txt",
+    message:
+        "Filtering called variants based on the learn read orientation model for ffpe, segments and contamination table, as well as removing indels."
     shell:
         "(gatk FilterMutectCalls "
         "-R {params.reference_genome} "
         "-V {input.unfiltered_vcf} "
+        "-L {input.intervals} "
         "--tumor-segmentation {input.segments_table} "
         "--contamination-table {input.contamination_table} "
         "--ob-priors {input.read_orientation_model} "
@@ -108,9 +130,15 @@ rule filter_ffpe_artifacts:
         filtered_vcf = "results/{tumors}/filtered_all.vcf.gz",
     output:
         ffpe_filtered_vcf = protected("results/{tumors}/filtered_no_ffpe_artifacts.vcf.gz"),
+    resources:
+        mem_mb = 1024,
+        runtime = "2m",
+        slurm_partition = "MSC"
     log:
         "logs/filter_ffpe_artifacts/{tumors}_filter_ffpe_artifacts.txt",
+    message:
+        "To remove possible ffpe artifacts harshly. This rule is optional and can be commented out."
     conda:
-        "envs/bcftools.yaml"
+        "../envs/bcftools.yaml"
     shell:
-        """ (bcftools view -e '((REF="C" && ALT="T") || (REF="G" && ALT="A"))' {input.filtered_vcf} -O z -o {output.ffpe_filtered_vcf} && bcftools index -t {output.ffpe_filtered_vcf}) > {log} 2>&1"""
+        """ (bcftools view -e '((REF="C" && ALT="T") || (REF="G" && ALT="A")) || AC<2' {input.filtered_vcf} -O z -o {output.ffpe_filtered_vcf} && bcftools index -t {output.ffpe_filtered_vcf}) > {log} 2>&1"""

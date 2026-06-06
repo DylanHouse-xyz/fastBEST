@@ -17,10 +17,12 @@ rule fastbe_search:
     log:
         "logs/{tumors}/fastbe/fastbe_search.log"
     conda:
-        "envs/fastbe.yaml"
+        "../envs/fastbe.yaml"
     threads: 32
     resources:
-        mem_mb = 24000
+        mem_mb = 24000,
+        runtime = "80h",
+        slurm_partition = "normal"
     message:
         "Searching for optimal tree for a given frequency matrix"
     shell:
@@ -35,8 +37,12 @@ rule initial_fastbe_cluster:
         meta_file = "results/{tumors}/fastbe/initial_cluster/initial_clustering_results.json"
     params:
         meta_dir = directory("results/{tumors}/fastbe/initial_cluster")
+    resources:
+        mem_mb = 4000,
+        runtime = "5m",
+        slurm_partition = "normal"
     conda:
-        "envs/fastbe.yaml"
+        "../envs/fastbe.yaml"
     log:
        "logs/{tumors}/fastbe/fastbe_cluster.log"
     shell:
@@ -49,8 +55,12 @@ checkpoint find_kneedle_point:
         meta = rules.initial_fastbe_cluster.output.meta_file
     output:
         optimal_clones = "results/{tumors}/fastbe/optimal_clones.txt"
+    resources:
+        mem_mb = 4000,
+        runtime = "2m",
+        slurm_partition = "normal"
     conda:
-        "envs/scripts.yaml"
+        "../envs/scripts.yaml"
     shell:
         "python3 find_mutation.py -i {input.meta} -o {output.optimal_clones}"
 
@@ -64,7 +74,11 @@ rule optimized_fastbe_cluster:
         meta = "results/{tumors}/fastbe/fastbe_optimized_k_clustering_results.json"
     params:
         k = lambda wildcards: get_optimal_clones(wildcards)
+    resources:
+        mem_mb = 4000,
+        runtime = "3m",
+        slurm_partition = "normal"
     conda:
-        "envs/fastbe.yaml"
+        "../envs/fastbe.yaml"
     shell:
         "fastbe cluster -k {params.k} -o results/{wildcards.tumors}/fastbe/fastbe_optimized_k {input.tree} {input.matrix}"

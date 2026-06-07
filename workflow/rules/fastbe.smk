@@ -62,7 +62,7 @@ checkpoint find_kneedle_point:
     conda:
         "../envs/scripts.yaml"
     shell:
-        "python3 find_mutation.py -i {input.meta} -o {output.optimal_clones}"
+        "python3 scripts/find_mutation.py -i {input.meta} -o {output.optimal_clones}"
 
 rule optimized_fastbe_cluster:
     input:

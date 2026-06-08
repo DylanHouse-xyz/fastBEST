@@ -21,7 +21,8 @@ This function takes the input VCF file and creates a Pandas dataframe containing
                 allele_frequencies.append(v.gt_alt_depths / (v.gt_ref_depths + v.gt_alt_depths))
 
     allele_frequencies = pd.DataFrame(allele_frequencies).transpose()
-    allele_frequencies = allele_frequencies.where(allele_frequencies > 0.1, 0.0)
+
+    allele_frequencies = allele_frequencies.where(allele_frequencies > 0.05, 0.0)
 
     mutations_present = (allele_frequencies > 0).sum(axis=0)
     max_mutation = allele_frequencies.max(axis=0)

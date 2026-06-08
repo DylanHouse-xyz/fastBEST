@@ -37,4 +37,4 @@ rule plot_tree:
         "Plotting a clonal tree."
     shell:
         "mkdir -p results/{wildcards.tumors}/tree && "
-        "python3 scripts/plot_clone.py --cluster {input.clone_map} {input.adjacency_list}"
+        "python3 scripts/plot_clone.py --cluster {input.clone_map} {input.adjacency_list} -o {output.phylogenetic_tree}"

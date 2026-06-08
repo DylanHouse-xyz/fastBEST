@@ -47,7 +47,7 @@ rule initial_fastbe_cluster:
        "logs/{tumors}/fastbe/fastbe_cluster.log"
     shell:
         "mkdir -p results/{wildcards.tumors}/fastbe/initial_cluster && "
-        "fastbe cluster -k 6 -o {params.meta_dir}/initial {input.tree} {input.af_matrix}"
+        "fastbe cluster -k 25 -o {params.meta_dir}/initial {input.tree} {input.af_matrix}"
 
 # Find optimal number of clones using the kneedle algorithm
 checkpoint find_kneedle_point:

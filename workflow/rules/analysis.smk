@@ -26,7 +26,7 @@ rule plot_tree:
         clone_map = rules.optimized_fastbe_cluster.output.cluster,
         adjacency_list = rules.fastbe_search.output.tree
     output:
-        phylogenetic_tree = "results/{tumors}/tree/clonal_evolution.png"
+        phylogenetic_tree = directory("results/{tumors}/tree/")
     resources:
         mem_mb = 3000,
         runtime = "2m",

@@ -1,5 +1,5 @@
 import argparse
-
+import os
 import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
@@ -14,18 +14,22 @@ def get_clone(cluster_file):
     return df.set_index(0)[1]
 
 
-def build_and_draw_clone_tree(adjacency_list_file, mutation_to_clone, ax=None):
+def build_and_draw_clone_tree(adjacency_list_file, mutation_to_clone, output_dir, ax=None):
     """
-    Parses mutation relationships, collapses them into clones, and plots the tree.
+    Parses mutation relationships, collapses them into clones, and plots the tree. Outputs a clonal tree .png, and a list containing each clones parents in a .txt format.
 
         Args:
-            adjacency_list_file: File that contains the adjacency list output from fastbe search
+            adjacency_list_file: File that contains the adjacency list output fron fastbe search
+
             mutation_to_clone: CSV file containing cluster to mutation data
+
+            output_dir = The directory where both outputs will be saved.
         Returns:
-            A clonal tree
+            A clonal tree & a .txt file containing a list of parents (0-indexing)
 
     """
     clone_tree = nx.DiGraph()
+    parents_file = []
 
     with open(adjacency_list_file, "r") as f:
         for line in f:
@@ -46,8 +50,9 @@ def build_and_draw_clone_tree(adjacency_list_file, mutation_to_clone, ax=None):
                     parents = list(clone_tree.predecessors(descendent_clone))
                     print(f"Parents of {descendent_clone}: {parents}")
 
-
-
+                    if parents:
+                        parents_file.append(int(parents[0]))
+    
 
 
 
@@ -57,27 +62,24 @@ def build_and_draw_clone_tree(adjacency_list_file, mutation_to_clone, ax=None):
     nx.draw(clone_tree, pos, with_labels=False, arrows=True, ax=ax, node_color="lightblue", node_size=800)
     nx.draw_networkx_labels(clone_tree, pos, labels, font_size=10, ax=ax)
 
+    # Write list of parents to parents.txt.
+    output_file_path = os.path.join(output_dir, 'parents.txt')
+    with open(output_file_path, 'w') as p:
+        p.write(str(parents_file))
 
 def main():
     parser = argparse.ArgumentParser(
         description="Reconstruct and plot clonal evolutionary trees from mutation adjacency lists."
     )
     parser.add_argument("--cluster",required=True, help="CSV file mapping individual mutations to their designated clone/cluster assignment.")
-    parser.add_argument("adjacency_lists",help="One or more text files containing mutation adjacency hierarchies.",nargs="+")
+    parser.add_argument("adjacency_list",help="The adjacency list output from fastBE search")
     parser.add_argument('-o', '--output',help="The directory in which the clonal tree will be stored." )
     args = parser.parse_args()
 
     # Map unique clones to mutations
-    mutation_to_clone = get_clone(args.cluster)
-
-    fig, axes = plt.subplots(figsize=(8,6))
-    if len(args.adjacency_lists) == 1:
-        axes = [axes]
-
-    for i, adjacency_list_file in enumerate(args.adjacency_lists):
-        build_and_draw_clone_tree(adjacency_list_file, mutation_to_clone, axes[i])
-
-    output_png = args.output
+    mutation_cluster = get_clone(args.cluster)
+    build_and_draw_clone_tree(args.adjacency_list, mutation_cluster, args.output)
+    output_png = os.path.join(args.output, 'clone_tree.png')
     plt.savefig(output_png, dpi=300)
 
 

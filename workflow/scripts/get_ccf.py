@@ -26,10 +26,9 @@ def get_ccf(mutation_to_clone, vaf_matrix, filepath):
     cluster_to_idx = {
         cluster: idx for idx, cluster in enumerate(unique_clusters)
     }
-
+    
     root_mutation = clusters_df.iloc[0,1]
-    clusters_df = clusters_df[clusters_df.iloc[:, 1] != root_mutation].reset_index(drop=True)
-
+    root_idx = cluster_to_idx[root_mutation]
 
     variants_per_cluster = clusters_df["clone"].value_counts()
     cluster_counts_vector = np.array(
@@ -64,12 +63,14 @@ def get_ccf(mutation_to_clone, vaf_matrix, filepath):
     ccf_matrix = avg_vaf_matrix * 2
     ccf_matrix = np.where(ccf_matrix < threshold, 0.0, ccf_matrix)
 
+    ccf_matrix[:, root_idx] = 1.0
 
     ccf_df = pd.DataFrame(ccf_matrix, columns=unique_clusters)
-    ccf_df.index.name = "Sample_Index"
+    ccf_df.index.name = "Clone_Index"
     ccf_df.to_csv(filepath)
     print("CCF file produced in specified directory")
     return ccf_df
+
 
 def plot_ccf(df):
     df.plot(kind = 'bar', stacked = 'True', title = 'Cancer Cell Fraction Proportion', use_index = True)

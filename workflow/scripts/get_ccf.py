@@ -22,9 +22,14 @@ def get_ccf(mutation_to_clone, vaf_matrix, filepath):
     clusters_df = pd.read_csv(mutation_to_clone)
     clusters_df = clusters_df.sort_values("mutation", ascending = True).reset_index(drop = True)
     unique_clusters = sorted(clusters_df["clone"].unique())
+
     cluster_to_idx = {
         cluster: idx for idx, cluster in enumerate(unique_clusters)
     }
+
+    root_mutation = clusters_df.iloc[0,1]
+    clusters_df = clusters_df[clusters_df.iloc[:, 1] != root_mutation].reset_index(drop=True)
+
 
     variants_per_cluster = clusters_df["clone"].value_counts()
     cluster_counts_vector = np.array(

@@ -1,5 +1,6 @@
 import argparse
 import os
+import csv
 import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
@@ -62,10 +63,23 @@ def build_and_draw_clone_tree(adjacency_list_file, mutation_to_clone, output_dir
     nx.draw(clone_tree, pos, with_labels=False, arrows=True, ax=ax, node_color="lightblue", node_size=800)
     nx.draw_networkx_labels(clone_tree, pos, labels, font_size=10, ax=ax)
 
-    # Write list of parents to parents.txt.
-    output_file_path = os.path.join(output_dir, 'parents.txt')
-    with open(output_file_path, 'w') as p:
-        p.write(str(parents_file))
+    # Writing the parents and index into a csv file. This will be used for the CCF calculation when accounting for the phylogenetic history.
+    csv_output_path = os.path.join(output_dir, 'parents.csv')
+
+    with open(csv_output_path, mode='w', newline='') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(['Clone_Index', 'Parent_Clone'])
+    
+    # Iterate through all nodes in the built graph
+        for node in clone_tree.nodes():
+            parents = list(clone_tree.predecessors(node))
+        
+            if not parents:
+                parent_id = -1
+            else:
+                parent_id = parents[0]
+            
+            writer.writerow([node, parent_id])
 
 def main():
     parser = argparse.ArgumentParser(

@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def get_ccf(mutation_to_clone, vaf_matrix, filepath):
+def get_ccf(mutation_to_clone, vaf_matrix, phylogenetic_history, filepath):
     """
     Calculates the cancer cell fraction (CCF) & the clonal composition in
     cancer samples from outputs of fastBE cluster.
@@ -17,7 +17,7 @@ def get_ccf(mutation_to_clone, vaf_matrix, filepath):
         Returns:
             A CSV file containing the CCF data per clone and sample.
     """
-    threshold = 0.05
+    threshold = 0.10
 
     clusters_df = pd.read_csv(mutation_to_clone)
     clusters_df = clusters_df.sort_values("mutation", ascending = True).reset_index(drop = True)
@@ -65,8 +65,43 @@ def get_ccf(mutation_to_clone, vaf_matrix, filepath):
 
     ccf_matrix[:, root_idx] = 1.0
 
-    ccf_df = pd.DataFrame(ccf_matrix, columns=unique_clusters)
-    ccf_df.index.name = "Clone_Index"
+    # Correcting CCF for phylogenetic history
+    history = pd.read_csv(phylogenetic_history) 
+    parent_dictionary = history.set_index("Clone_Index")["Parent_Clone"].to_dict()
+
+    corrected_ccf_matrix = ccf_matrix.copy()
+
+    # Loop through each sample individually to find both the child, and parent index position. 
+    for sample_idx in range(num_samples):
+        for index, row in history.iterrows():
+            child_clone = row["Clone_Index"]
+            parent_clone = row["Parent_Clone"]
+
+            if child_clone not in cluster_to_idx:
+                continue
+
+            child_idx = cluster_to_idx[child_clone]
+            child_ccf = ccf_matrix[sample_idx, child_idx]
+
+        # If the child clone has no presence in this sample, skip it
+            if child_ccf == 0.0:
+                continue
+
+        # Treaversing the tree to find the closest ancestor and then subtracting from parent.
+            while parent_clone != -1:
+                if parent_clone in cluster_to_idx:
+                    parent_idx = cluster_to_idx[parent_clone]
+                    if ccf_matrix[sample_idx, parent_idx] > 0.0 or parent_idx == root_idx:
+                        break
+                parent_clone = parent_dictionary.get(parent_clone, -1)
+            if parent_clone != -1:
+                parent_idx = cluster_to_idx[parent_clone]
+                corrected_ccf_matrix[sample_idx, parent_idx] -= child_ccf
+
+
+
+    ccf_df = pd.DataFrame(corrected_ccf_matrix, columns=unique_clusters)
+    ccf_df.index.name = "Sample_Index"
     ccf_df.to_csv(filepath)
     print("CCF file produced in specified directory")
     return ccf_df
@@ -81,11 +116,12 @@ def main():
     parser = argparse.ArgumentParser("Calculates the cancer cell fraction from fastBE's cluster output and VAF matrix")
     parser.add_argument('Cluster_Variant', help = "The cluster-variant .csv file")
     parser.add_argument('VAF_Matrix', help = "The variant allele frequency .txt file")
+    parser.add_argument('phylogenetic_history', help = "CSV file containing the parent/child relationship")
     parser.add_argument('output', help = "Filepath to output")
     args = parser.parse_args()
 
     if args.Cluster_Variant and args.VAF_Matrix:
-        df = get_ccf(args.Cluster_Variant, args.VAF_Matrix, args.output)
+        df = get_ccf(args.Cluster_Variant, args.VAF_Matrix, args.phylogenetic_history, args.output)
         plot_ccf(df)
 
     else:

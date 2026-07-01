@@ -27,7 +27,7 @@ This function takes the input VCF file and creates a Pandas dataframe containing
 
     mutations_present = (allele_frequencies > 0).sum(axis=0)
     max_mutation = allele_frequencies.max(axis=0)
-    filter_mutation = (mutations_present > 1) | ((mutations_present == 1) & (max_mutation > 0.05) & (max_mutation < 0.50))
+    filter_mutation = (mutations_present > 1) & (max_mutation < 0.50) | ((mutations_present == 1) & (max_mutation > 0.05) & (max_mutation < 0.50))
     allele_frequencies = allele_frequencies.loc[:, filter_mutation]
 
     junk = [col for col in allele_frequencies.columns if (allele_frequencies[col] > 0).all()]

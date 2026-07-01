@@ -22,13 +22,16 @@ This function takes the input VCF file and creates a Pandas dataframe containing
 
     allele_frequencies = pd.DataFrame(allele_frequencies).transpose()
 
-    allele_frequencies = allele_frequencies.where(allele_frequencies > 0.05, 0.0)
-    allele_frequencies = allele_frequencies.where(allele_frequencies < 0.50, 0.0)
+    allele_frequencies = allele_frequencies.where(allele_frequencies > 0.02, 0.0)
+    #allele_frequencies = allele_frequencies.where(allele_frequencies < 0.50, 0.0)
 
     mutations_present = (allele_frequencies > 0).sum(axis=0)
     max_mutation = allele_frequencies.max(axis=0)
-    filter_mutation = (mutations_present > 1) | ((mutations_present == 1) & (max_mutation > 0.05))
+    filter_mutation = (mutations_present > 1) | ((mutations_present == 1) & (max_mutation > 0.05) & (max_mutation < 0.50))
     allele_frequencies = allele_frequencies.loc[:, filter_mutation]
+
+    junk = [col for col in allele_frequencies.columns if (allele_frequencies[col] > 0).all()]
+    allele_frequencies = allele_frequencies.drop(columns = junk)
 
     return allele_frequencies
 

@@ -31,6 +31,7 @@ rule vcf_converter:
         vcf=rules.extract_pass_variants.output.pass_variants_vcf,
     output:
         matrix=protected("results/{tumors}/af_matrix.txt"),
+        labelled_matrix = "results/{tumors}/labelled_matrix.txt,
     resources:
         mem_mb = 1024,
         runtime = "1m",
@@ -42,13 +43,15 @@ rule vcf_converter:
     message:
         "Converting passed variants into a fastBE-ready format. Rows are samples and columns are distinct mutations."
     shell:
-        "python3 scripts/vcfconverter.py -i {input.vcf} -o {output.matrix}"
+        "python3 scripts/vcfconverter.py -i {input.vcf} -o {output.matrix} -label {output.labelled_matrix}"
 
 rule append_column:
     input:
-        matrix = rules.vcf_converter.output.matrix
+        matrix = rules.vcf_converter.output.matrix,
+        labelled_matrix = rules.vcf_converter.output.labelled_matrix
     output:
-        af_matrix = protected("results/{tumors}/af_matrix_root.txt")
+        af_matrix = protected("results/{tumors}/af_matrix_root.txt"),
+        labelled_root = "results/{tumors}/labelled_root_matrix.txt",
     resources:
         mem_mb = 1024,
         runtime = "1m",
@@ -59,5 +62,6 @@ rule append_column:
         "Appending a column of 1 to the variant allele frequency matrix. This rule is used when the root is unknown."
     shell:
         """
-        awk '{{print "1.0", $0}}' {input.matrix} > {output.af_matrix}
+        awk '{{print "1.0", $0}}' {input.matrix} > {output.af_matrix} && 
+        awk '{{print "1.0", &0}}' {input.labelled_matrix} > {output.labelled_root}
         """

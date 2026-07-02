@@ -54,7 +54,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extracts the allele frequencies from the  input Variant Calling Format (VCF) file to the required frequency matrix format per fastBE specifications. Mutations correspond to columns and rows correspond to unique samples. ')
     parser.add_argument('-i', help="input VCF file")
     parser.add_argument('-o', help="Your output file name")
-    parser.add_argument('-label', help='A labelled version of the matrix')
+    parser.add_argument('-label', help='A labeled version of the matrix')
     args = parser.parse_args()
     if args.i:
         vcf_matrix = extract_vcf_data(args.i)

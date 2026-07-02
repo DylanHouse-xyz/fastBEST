@@ -29,7 +29,8 @@ rule get_ccf:
         matrix = rules.append_column.output.af_matrix,
         labels = rules.vcf_converter.output.labeled_matrix,
         clone_map = rules.optimized_fastbe_cluster.output.cluster,
-        parent_history = rules.plot_tree.output.history
+        parent_history = rules.plot_tree.output.history,
+        manifest = config["manifest"]
     output:
         ccf = "results/{tumors}/{tumors}_ccf.csv",
         raw_ccf = "results/{tumors}/{tumors}_ccf-raw.csv"
@@ -42,7 +43,7 @@ rule get_ccf:
     message:
         "Calculating the cancer cell fraction (CCF) of each clone in each sample given a variant allele frequency (VAF) matrix and a clone-to-mutation map from fastBE." 
     shell:
-        "python3 scripts/get_ccf.py {input.clone_map} {input.matrix} {input.labels } {input.parent_history} {output.ccf}"
+        "python3 scripts/get_ccf.py --clusters_file {input.clone_map} --vaf {input.matrix} --labels {input.labels }  --parents {input.parent_history} --output {output.ccf} --manifest {input.manifest}"
 
 
 

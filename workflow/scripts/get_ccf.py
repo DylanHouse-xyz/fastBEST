@@ -99,7 +99,7 @@ def get_ccf(mutation_to_clone, vaf_matrix, vaf_matrix_labeled, phylogenetic_hist
 
 
     labeled_matrix = pd.read_csv(vaf_matrix_labeled, sep = " ")
-    labels = labeled_matrix.iloc[:,1].tolist() # Has to be second column as the append column rule adds a column of 1's before it previously.
+    labels = labeled_matrix.iloc[:,0].tolist() 
 
     manifest_df = pd.read_csv(manifest_path)
         # Maps the sample name to the file name.
@@ -135,16 +135,49 @@ def plot_ccf(df):
     
 def main():
     parser = argparse.ArgumentParser("Calculates the cancer cell fraction from fastBE's cluster output and VAF matrix")
-    parser.add_argument('Cluster_Variant', help = "The cluster-variant .csv file")
-    parser.add_argument('VAF_Matrix', help = "The variant allele frequency .txt file")
-    parser.add_argument('phylogenetic_history', help = "CSV file containing the parent/child relationship")
-    parser.add_argument('labeled_matrix', help = "The Labeled VAF matrix that will assign the sample labels to the plot")
-    parser.add_argument('output', help = "Filepath to output")
-    parser.add_argument('--manifest', help = "Optional: Path to the manifest CSV file for replacing file names with sample aliases")
+
+    parser.add_argument(
+        '--clusters_file',
+        help = "The cluster-variant .csv file",
+        required = True
+    )
+    parser.add_argument(
+        '--vaf',
+        help = "The variant allele frequency .txt file",
+        required = True
+    )
+    parser.add_argument(
+        '--parents',
+        help = "CSV file containing the parent/child relationship",
+        required = True
+    )
+    parser.add_argument(
+        '--labels',
+        help = "The Labeled VAF matrix that will assign the sample labels to the plot",
+        required = False
+    )
+    parser.add_argument(
+        '--output',
+        help = "Filepath to output",
+        default = "./ccf.csv"
+    )
+    parser.add_argument(
+        '--manifest',
+        help = "Optional: Path to the manifest CSV file for replacing file names with sample aliases",
+        required = False
+    )
+
     args = parser.parse_args()
 
-    if args.Cluster_Variant and args.VAF_Matrix:
-        ccf_df, raw_df = get_ccf(args.Cluster_Variant, args.VAF_Matrix, args.labeled_matrix, args.phylogenetic_history, args.output, args.manifest)
+    if args.clusters_file and args.vaf:
+
+        ccf_df, raw_df = get_ccf(
+            args.clusters_file,
+            args.vaf,
+            args.labels,
+            args.parents,
+            args.output,
+            args.manifest)
         plot_ccf(ccf_df)
 
     else:

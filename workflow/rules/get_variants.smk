@@ -31,7 +31,7 @@ rule vcf_converter:
         vcf=rules.extract_pass_variants.output.pass_variants_vcf,
     output:
         matrix=protected("results/{tumors}/af_matrix.txt"),
-        labeled_matrix = "results/{tumors}/labelled_matrix.txt,
+        labeled_matrix = "results/{tumors}/labeled_matrix.txt,
     resources:
         mem_mb = 1024,
         runtime = "1m",
@@ -43,7 +43,7 @@ rule vcf_converter:
     message:
         "Converting passed variants into a fastBE-ready format. Rows are samples and columns are distinct mutations."
     shell:
-        "python3 scripts/vcfconverter.py -i {input.vcf} -o {output.matrix} -label {output.labelled_matrix}"
+        "python3 scripts/vcfconverter.py -i {input.vcf} -o {output.matrix} -label {output.labeled_matrix}"
 
 rule append_column:
     input:

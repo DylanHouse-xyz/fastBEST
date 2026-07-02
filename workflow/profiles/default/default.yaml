@@ -1,0 +1,3 @@
+software-deployment-method: conda
+rerun-incomplete: True
+use-conda: True

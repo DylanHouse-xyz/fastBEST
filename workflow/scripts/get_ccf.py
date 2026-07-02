@@ -1,5 +1,5 @@
 import argparse
-
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -17,7 +17,7 @@ def get_ccf(mutation_to_clone, vaf_matrix, phylogenetic_history, filepath):
         Returns:
             A CSV file containing the CCF data per clone and sample.
     """
-    threshold = 0.10
+    threshold = 0.02
 
     clusters_df = pd.read_csv(mutation_to_clone)
     clusters_df = clusters_df.sort_values("mutation", ascending = True).reset_index(drop = True)
@@ -103,6 +103,14 @@ def get_ccf(mutation_to_clone, vaf_matrix, phylogenetic_history, filepath):
     ccf_df = pd.DataFrame(corrected_ccf_matrix, columns=unique_clusters)
     ccf_df.index.name = "Sample_Index"
     ccf_df.to_csv(filepath)
+
+    base_path, ext = os.path.splitext(filepath)
+    raw_filepath = f"{base_path}_raw{ext}"
+
+    raw_df= pd.DataFrame(ccf_matrix, columns=unique_clusters)
+    raw_df.index.name = "Sample_Index"
+    raw_df.to_csv(raw_filepath)
+
     print("CCF file produced in specified directory")
     return ccf_df
 

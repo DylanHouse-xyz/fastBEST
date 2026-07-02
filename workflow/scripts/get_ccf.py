@@ -4,8 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
-def get_ccf(mutation_to_clone, vaf_matrix, vaf_matrix_labeled, phylogenetic_history, filepath):
+def get_ccf(mutation_to_clone, vaf_matrix, vaf_matrix_labeled, phylogenetic_history, filepath, manifest_path):
     """
     Calculates the cancer cell fraction (CCF) & the clonal composition in
     cancer samples from outputs of fastBE cluster.
@@ -102,6 +101,13 @@ def get_ccf(mutation_to_clone, vaf_matrix, vaf_matrix_labeled, phylogenetic_hist
     labeled_matrix = pd.read_csv(vaf_matrix_labeled, sep = " ")
     labels = labeled_matrix.iloc[:,1].tolist() # Has to be second column as the append column rule adds a column of 1's before it previously.
 
+    manifest_df = pd.read_csv(manifest_path)
+        # Maps the sample name to the file name.
+    file_to_name = dict(zip(manifest_df["file_name"], manifest_df["sample_alias"]))
+    labels = [
+        file_to_name.get(f"{label}.R1.fastq.gz", label)  # Replaces current labels with sample names
+        for label in labels
+        ]
 
 
     ccf_df = pd.DataFrame(corrected_ccf_matrix, columns=unique_clusters)
@@ -134,10 +140,11 @@ def main():
     parser.add_argument('phylogenetic_history', help = "CSV file containing the parent/child relationship")
     parser.add_argument('labeled_matrix', help = "The Labeled VAF matrix that will assign the sample labels to the plot")
     parser.add_argument('output', help = "Filepath to output")
+    parser.add_argument('--manifest', help = "Optional: Path to the manifest CSV file for replacing file names with sample aliases")
     args = parser.parse_args()
 
     if args.Cluster_Variant and args.VAF_Matrix:
-        ccf_df, raw_df = get_ccf(args.Cluster_Variant, args.VAF_Matrix, args.labeled_matrix, args.phylogenetic_history, args.output)
+        ccf_df, raw_df = get_ccf(args.Cluster_Variant, args.VAF_Matrix, args.labeled_matrix, args.phylogenetic_history, args.output, args.manifest)
         plot_ccf(ccf_df)
 
     else:

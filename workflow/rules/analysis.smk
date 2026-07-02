@@ -27,10 +27,12 @@ rule plot_tree:
 rule get_ccf:
     input:
         matrix = rules.append_column.output.af_matrix,
+        labels = rules.vcf_converter.output.labeled_matrix,
         clone_map = rules.optimized_fastbe_cluster.output.cluster,
         parent_history = rules.plot_tree.output.history
     output:
-        ccf = "results/{tumors}/{tumors}_ccf.csv"
+        ccf = "results/{tumors}/{tumors}_ccf.csv",
+        raw_ccf = "results/{tumors}/{tumors}_ccf-raw.csv"
     resources:
         mem_mb = 3000,
         runtime = "2m",
@@ -40,5 +42,20 @@ rule get_ccf:
     message:
         "Calculating the cancer cell fraction (CCF) of each clone in each sample given a variant allele frequency (VAF) matrix and a clone-to-mutation map from fastBE." 
     shell:
-        "python3 scripts/get_ccf.py {input.clone_map} {input.matrix} {input.parent_history} {output.ccf}"
+        "python3 scripts/get_ccf.py {input.clone_map} {input.matrix} {input.labels } {input.parent_history} {output.ccf}"
 
+
+
+rule fishplot:
+    input:
+        parents = rules.plot_tree.output.history,
+        raw_ccf = rules.get_ccf.output.raw_ccf,
+        clusters = rules.optimized_fastbe_cluster.output.cluster,
+    output:
+        fishplot = "results/{tumors}/{tumors}_fishplot.png"
+    conda:
+        "../envs/fishplot.yaml"
+    message:
+        "Generating a fishplot to map out clonal evolutionary dynamics"
+    shell:
+        "python3 scripts/generate_fishplots.py --ccf-file {input.ccf} --parent-file {input.parents} --clusters-file {input.clusters} --output {output.fishplot}"

@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def get_ccf(mutation_to_clone, vaf_matrix, phylogenetic_history, filepath):
+def get_ccf(mutation_to_clone, vaf_matrix, vaf_matrix_labeled, phylogenetic_history, filepath):
     """
     Calculates the cancer cell fraction (CCF) & the clonal composition in
     cancer samples from outputs of fastBE cluster.
@@ -99,20 +99,27 @@ def get_ccf(mutation_to_clone, vaf_matrix, phylogenetic_history, filepath):
                 corrected_ccf_matrix[sample_idx, parent_idx] -= child_ccf
 
 
+    labeled_matrix = pd.read_csv(vaf_matrix_labeled, sep = " ")
+    labels = labeled_matrix.iloc[:,1].tolist() # Has to be second column as the append column rule adds a column of 1's before it previously.
+
+
 
     ccf_df = pd.DataFrame(corrected_ccf_matrix, columns=unique_clusters)
-    ccf_df.index.name = "Sample_Index"
+    ccf_df.index.name = "Samples"
+    ccf_df.index = labels
     ccf_df.to_csv(filepath)
 
     base_path, ext = os.path.splitext(filepath)
     raw_filepath = f"{base_path}_raw{ext}"
 
     raw_df= pd.DataFrame(ccf_matrix, columns=unique_clusters)
-    raw_df.index.name = "Sample_Index"
+    raw_df.index.name = "Samples"
+    raw_df.index = labels
     raw_df.to_csv(raw_filepath)
 
     print("CCF file produced in specified directory")
-    return ccf_df
+    return ccf_df, raw_df
+
 
 
 def plot_ccf(df):
@@ -125,12 +132,13 @@ def main():
     parser.add_argument('Cluster_Variant', help = "The cluster-variant .csv file")
     parser.add_argument('VAF_Matrix', help = "The variant allele frequency .txt file")
     parser.add_argument('phylogenetic_history', help = "CSV file containing the parent/child relationship")
+    parser.add_argument('labeled_matrix', help = "The Labeled VAF matrix that will assign the sample labels to the plot")
     parser.add_argument('output', help = "Filepath to output")
     args = parser.parse_args()
 
     if args.Cluster_Variant and args.VAF_Matrix:
-        df = get_ccf(args.Cluster_Variant, args.VAF_Matrix, args.phylogenetic_history, args.output)
-        plot_ccf(df)
+        ccf_df, raw_df = get_ccf(args.Cluster_Variant, args.VAF_Matrix, args.labeled_matrix, args.phylogenetic_history, args.output)
+        plot_ccf(ccf_df)
 
     else:
         raise ValueError("Ensure to input both cluster-variant csv file from fastBE output & the VAF .txt matrix in fastBE format")

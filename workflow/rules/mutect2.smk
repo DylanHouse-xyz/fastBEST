@@ -62,7 +62,7 @@ rule merge_mutect_stats:
     input:
         stats = expand("results/{{tumors}}/unfiltered_{scatter}.vcf.gz.stats", scatter=INTERVAL_SHARD_IDS),
     output:
-        protected("results/{tumors}/mutect_merged.stats"),
+        temp("results/{tumors}/mutect_merged.stats"),
     log:
         "logs/merge_mutect_stats/{tumors}_merge_mutect_stats.txt",
     params:

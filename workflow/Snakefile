@@ -20,15 +20,6 @@ include: "rules/analysis.smk"
 
 rule all:
     input:
-  #      expand("results/fastqc/{read}_r{num}.html", read=list(config["reads"].keys()), num=[1,2]),
-   #     expand("results/fastqc/{read}_r{num}_fastqc.zip", read=list(config["reads"].keys()), num=[1,2]),
-        expand("results/{tumors}/mutect_merged.stats", tumors = config["samples"]),
-        expand("results/{tumors}/read_orientation_model.tar.gz", tumors = config["samples"]),
-        expand("results/{tumors}/filtered_all.vcf.gz", tumors = config["samples"]),
-        expand("results/{tumors}/filtering_stats.tsv", tumors = config["samples"]),
         expand("results/{tumors}/pass_variants.vcf.gz", tumors = config["samples"]),
-        expand("results/{tumors}/af_matrix_root.txt", tumors = config["samples"]),
-        expand("results/{tumors}/fastbe/fastbe_optimized_k_clustering.csv", tumors = config["samples"]),
-        expand("results/{tumors}/fastbe/fastbe_optimized_k_clustering_results.json", tumors = config["samples"]),
         expand("results/{tumors}/{tumors}_ccf.csv", tumors = config["samples"]),
-        expand("results/{tumors}/tree/clonal_evolution.png", tumors = config["samples"])
+        expand("results/{tumors}/{tumors}-fishplot.png", tumors = config["samples"])

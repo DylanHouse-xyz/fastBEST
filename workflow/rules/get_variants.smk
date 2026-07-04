@@ -30,7 +30,7 @@ rule vcf_converter:
     input:
         vcf=rules.extract_pass_variants.output.pass_variants_vcf,
     output:
-        matrix=protected("results/{tumors}/af_matrix.txt"),
+        matrix=temp("results/{tumors}/af_matrix.txt"),
         labeled_matrix = "results/{tumors}/labeled_matrix.txt,
     resources:
         mem_mb = 1024,
@@ -49,7 +49,7 @@ rule append_column:
     input:
         matrix = rules.vcf_converter.output.matrix,
     output:
-        af_matrix = protected("results/{tumors}/af_matrix_root.txt"),
+        af_matrix = "results/{tumors}/af_matrix_root.txt",
         labelled_root = "results/{tumors}/labelled_root_matrix.txt",
     resources:
         mem_mb = 1024,

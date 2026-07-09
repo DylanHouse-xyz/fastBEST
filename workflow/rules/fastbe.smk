@@ -16,6 +16,8 @@ rule fastbe_search:
         name = "results/{tumors}/fastbe/{tumors}"
     log:
         "logs/{tumors}/fastbe/fastbe_search.log"
+    benchmark:
+        "benchmarks/{tumors}/fastbe_runtime.log"
     conda:
         "../envs/fastbe.yaml"
     threads: 32

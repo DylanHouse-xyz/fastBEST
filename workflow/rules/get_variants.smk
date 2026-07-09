@@ -5,6 +5,7 @@ rule extract_pass_variants:
         pass_variants_vcf = protected("results/{tumors}/pass_variants.vcf.gz"),
     params:
         reference_genome = config["ref_genome"],
+        intervals = config["intervals"],
     resources:
         mem_mb = 1024,
         runtime = "1m",
@@ -19,6 +20,7 @@ rule extract_pass_variants:
         "(gatk SelectVariants "
         "-R {params.reference_genome} "
         "-V {input.filtered_vcf} "
+        "-L {params.intervals} "
         "--restrict-alleles-to BIALLELIC "
         "--exclude-filtered "
         "--select-type-to-include SNP "

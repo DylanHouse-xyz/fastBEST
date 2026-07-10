@@ -45,6 +45,7 @@ conda create -c conda-forge -c bioconda --name snakemake snakemake
 
 For fastbe, please cite the original authors:
 
+```
 @article{schmidt2024regression,
   title={A regression based approach to phylogenetic reconstruction from multi-sample bulk DNA sequencing of tumors},
   author={Schmidt, Henri and Raphael, Benjamin J},
@@ -55,3 +56,4 @@ For fastbe, please cite the original authors:
   year={2024},
   publisher={Public Library of Science San Francisco, CA USA}
 }
+```

@@ -1,0 +1,11 @@
+# General config for intervals, reference genome, germline resource, and list of chromosomes to run in parallel.
+
+intervals: /path/to/intervals
+
+known_polymorphic_sites: /path/to/known_polymorphic_sites
+
+ref_genome: /path/to/genome
+
+germline_resource: /path/to/germline_resource
+
+

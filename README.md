@@ -1,7 +1,45 @@
 # fastBEST
-fastBE supplementary tools (fastBEST)  consist of supplementary python script that automates the process of converting the standard VCF file format to the input frequency matrix .txt file for fastBE in addition to another script that constructs a tree from the output.
+fastBE supplementary tools (fastBEST) is a [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow that bundles the generic workflow from variant calling with Mutect2, to clonal denvolution with [fastBE](https://github.com/raphael-group/fastBE). A clonal tree was inferred with fasBE with it's search method, and the variants were clustered with fastBE's cluster method, and the optimal number of clones were inferred with the [kneedle algorithim](https://kneed.readthedocs.io/en/stable/).
+
+------------
+
+# Overview
+
+1. [Setup](#setup)
+2. [Usage](#usage)
+3. [Outputs](#workflow-output)
+4. [Workflow DAG](#workflow-DAG)
+5. [Citation](#citation)
+
+--------------
+
+# Dependencies
+
+* [conda](https://github.com/conda-forge/miniforge), version >24.1.2
+* [Snakemake](https://snakemake.readthedocs.io/en/stable/), version >=7.32.4
+
+---------------
+
+# Setup
+
+This pipeline would require that both [conda](https://github.com/conda-forge/miniforge) and [Snakemake](https://snakemake.readthedocs.io/en/stable/) be installed; ensure bioconda and conda-forge channels are added. Below are the steps to ensure those requirements are met.
+
+1. Install `conda` through [miniforge]((https://github.com/conda-forge/miniforge#install)).
+2. Ensure the appropiate conda channels are added;
 
 
+```
+conda config --add channels bioconda
+conda config --add channels conda-forge
+```
+
+1. Install appropiate [Snakemake](https://snakemake.readthedocs.io/en/stable/):
+
+```
+conda create -c conda-forge -c bioconda --name snakemake snakemake
+```
+
+---------------
 
 # Citation
 

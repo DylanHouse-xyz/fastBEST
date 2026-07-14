@@ -6,10 +6,11 @@ fastBE supplementary tools (fastBEST) is a [Snakemake](https://snakemake.readthe
 # Overview
 
 1. [Setup](#setup)
-2. [Usage](#usage)
-3. [Outputs](#workflow-output)
-4. [Workflow DAG](#workflow-DAG)
-5. [Citation](#citation)
+2. [Overview](#overview)
+3. [Usage](#usage)
+4. [Outputs](#workflow-output)
+5. [Workflow DAG](#workflow-DAG)
+6. [Citation](#citation)
 
 --------------
 
@@ -40,6 +41,25 @@ conda create -c conda-forge -c bioconda --name snakemake snakemake
 ```
 
 ---------------
+
+# Overview
+
+Our Snakemake pipeline's main function is to automate variant calling with Mutect2, phylogenetic reconstruction with fastBE, and subsequent analysis with custom-made python scripts to generate cancer cell fraction (CCF) stacked bar chart of the clonal composition of a sample, a phylogenetic reconstructed tree from fastBE outputs, and a fishplot to visualize the evolutionary dynamics of a cohort overtime.
+
+One major advantage Snakemake worklows, along with other workflow management systems is the utilization of a configuration file to generalize a pipeline. We split the workflow to use two configuration files: one config file for samples. This is in the format;
+
+1. `Samples` - the samples dictionary where you will place the path to your input BAM files.
+2. `sample_name` - The name of the sample you are analyzing. This will be used to label newly created folders where your outputs will be placed.
+3. `sample rows` - First row contains path to `tumor bam files`. Second row holds the `name of normal sample`. Final row is the path to `normal bam file`.
+
+> [!IMPORTANT]
+> This workflow is intended for use with tumor-normal samples. If you wish to use a panel of normals, or tumor only: modify rules/mutect2.smk to alter the variant calling shell command.
+
+
+
+---------------
+
+
 
 # Citation
 

@@ -64,7 +64,7 @@ We used a second configuration file to store other necessary files for this work
 
 The default parameters of this workflow strictly filters the called variants by removig indels, and restricting to only one called variant per loci. Additionally, all C > T, and G > A variants are removed. We strictly filtered the calls due to time complexity we experienced with clonal deconvolution with fastBE. Our initial testing found that the number variants exceeding 2500 typically led to unreasonably long compute times, hence justifying the filtering steps. 
 
-> ![TIP]
+> [!TIP]
 > You can manually alter filtering or any other steps in the workflow by modifying or removing specific rules in the workflow/rules folder.
 
 

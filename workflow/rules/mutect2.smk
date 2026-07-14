@@ -9,8 +9,8 @@ rule split_intervals:
         scatter_count = INTERVAL_SHARD_COUNT
     resources:
         mem_mb = 2048,
-        runtime="1m",
-        slurm_partition="MSC"
+    log:
+        "results/split_intervals/split_intervals.txt",
     conda:
         "../envs/mutect2.yaml"
     shell:
@@ -33,8 +33,6 @@ rule Mutect2:
     threads: 4
     resources: 
         mem_mb = 24000,
-        runtime="24h",
-        slurm_partition="highmem"
     params:
         ref = config["ref_genome"],
         germ = config["germline_resource"],
@@ -43,7 +41,7 @@ rule Mutect2:
     conda:
         "../envs/mutect2.yaml"
     log:
-        "logs/mutect2/{tumor}_{scatter}_mutect2.txt",
+        "logs/{tumor}/{tumor}_{scatter}_mutect2.txt",
     shell:
         "(gatk Mutect2 "
         "-R {params.ref} "
@@ -64,13 +62,11 @@ rule merge_mutect_stats:
     output:
         temp("results/{tumors}/mutect_merged.stats"),
     log:
-        "logs/merge_mutect_stats/{tumors}_merge_mutect_stats.txt",
+        "logs/{tumors}/{tumors}_merge_mutect_stats.txt",
     params:
         stats_flags = lambda wildcards, input: " ".join([f"-stats {f}" for f in input.stats]),
     resources:
         mem_mb = 2048,
-        runtime = "3m",
-        slurm_partition="MSC"
     conda:
         "../envs/mutect2.yaml"
     shell:
@@ -87,8 +83,6 @@ rule Merge_Results:
         vcf_list = lambda wildcards, input: " ".join([f"-I {v}" for v in input.vcfs]),
     resources:
         mem_mb = 2048,
-        runtime = "3m",
-        slurm_partition="MSC"
     conda:
         "../envs/mutect2.yaml"
     message:

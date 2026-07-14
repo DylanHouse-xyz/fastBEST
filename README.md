@@ -9,7 +9,7 @@ fastBE supplementary tools (fastBEST) is a [Snakemake](https://snakemake.readthe
 2. [Overview](#overview)
 3. [Usage](#usage)
 4. [Outputs](#workflow-output)
-5. [Workflow DAG](#workflow-DAG)
+5. [Workflow DAG](#workflowDAG)
 6. [Citation](#citation)
 
 --------------
@@ -59,7 +59,12 @@ One major advantage Snakemake worklows, along with other workflow management sys
 
 ---------------
 
+# Workflow DAG
 
+![workflow-DAG](Snakemake-DAG.png)
+
+
+---------------
 
 # Citation
 

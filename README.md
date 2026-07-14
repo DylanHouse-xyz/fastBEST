@@ -55,9 +55,46 @@ One major advantage Snakemake worklows, along with other workflow management sys
 > [!IMPORTANT]
 > This workflow is intended for use with tumor-normal samples. If you wish to use a panel of normals, or tumor only: modify rules/mutect2.smk to alter the variant calling shell command.
 
+We used a second configuration file to store other necessary files for this workflow;
+
+1. `Reference Genome`
+2. `Intervals List`
+3. `Known Polymorphic Sites`
+4. `Germline Resources`
+
+The default parameters of this workflow strictly filters the called variants by removig indels, and restricting to only one called variant per loci. Additionally, all C > T, and G > A variants are removed. We strictly filtered the calls due to time complexity we experienced with clonal deconvolution with fastBE. Our initial testing found that the number variants exceeding 2500 typically led to unreasonably long compute times, hence justifying the filtering steps. 
+
+> ![TIP]
+> You can manually alter filtering or any other steps in the workflow by modifying or removing specific rules in the workflow/rules folder.
+
 
 
 ---------------
+
+# Usage
+
+1. Navigate to workflow directory and activate the Snakemake conda environment.
+
+```
+cd /path/to/fastBEST directory
+conda activate snakemake
+```
+
+2. Run a dry-run to test if workflow produces correct outputs
+
+```
+snakemake --use-conda --cores <num-ofcpu-cores> -n
+```
+
+3. Run the pipeline
+
+```
+snakemake --use-conda --cores <num-of-cpu-cores>
+```
+
+----------------
+
+
 
 # Workflow DAG
 

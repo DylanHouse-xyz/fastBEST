@@ -92,6 +92,28 @@ snakemake --use-conda --cores <num-ofcpu-cores> -n
 snakemake --use-conda --cores <num-of-cpu-cores>
 ```
 
+
+# Snakemake with SLURM
+
+To use this workflow with SLURM, an sbatch script should be created to send the job to the scheduler. An example of an sbatch script is shown below;
+
+```
+#!/bin/bash
+
+#SBATCH --job-name=<job name>         # create a short name for your job
+#SBATCH --nodes=1                # Number of nodes for this job
+#SBATCH --ntasks=1               # total number of tasks across all nodes
+#SBATCH --cpus-per-task=<cpu-cores>        # cpu-cores per task (>1 if multi-threaded tasks    )
+#SBATCH --mem=16G                # memory to allocate per compute node.
+#SBATCH --time=48:00:00          # total run time limit (HH:MM:SS)
+#SBATCH --mail-type=ALL          # send email for all events
+#SBATCH --mail-user=<your email address>
+
+conda activate snakemake
+snakemake --use-conda --cores <number-of-cpu-cores>
+```
+
+
 ----------------
 
 

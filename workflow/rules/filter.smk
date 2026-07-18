@@ -6,13 +6,13 @@ rule learn_read_orientation_model:
     output:
         temp("results/{tumors}/read_orientation_model.tar.gz"),
     log:
-        "logs/learn_read_orientation_model/{tumors}_learn_read_orientation_model.txt",
+        "results/{tumors}/logs/{tumors}_learn_read_orientation_model.txt",
+    benchmark:
+        "results/{tumors}/benchmark/{tumors}_learn_read_orientation_model.txt",
     params:
         tar_flags = lambda wildcards, input: " ".join([f"-I {f}" for f in input.tar]),
     resources:
         mem_mb = 8000,
-        runtime = "1h",
-        slurm_partition = "normal"
     conda:
         "../envs/mutect2.yaml"
     shell:
@@ -30,12 +30,12 @@ rule get_pileup_summaries:
         tumors = lambda wildcards, input: " ".join([f"-I {b}" for b in input.tumor_bam]),
     resources:
         mem_mb = 8000,
-        runtime = "1h",
-        slurm_partition = "normal"
     conda:
         "../envs/mutect2.yaml"
     log:
-        "logs/get_pileup_summaries/{tumors}_get_pileup_summaries.txt"
+        "results/{tumors}/logs/{tumors}_get_pileup_summaries.txt"
+    benchmark:
+        "results/{tumors}/benchmark/{tumors}_get_pileup_summaries.txt",
     shell:
         "(gatk GetPileupSummaries "
         "{params.tumors} "
@@ -53,12 +53,12 @@ rule get_pileup_summary_normal:
         tumor = lambda wildcards, input: config["samples"][wildcards.tumors][2]
     resources:
         mem_mb = 8000,
-        runtime = "1h",
-        slurm_partition = "normal"
     conda:
        "../envs/mutect2.yaml" 
     log:
-        "logs/get_pileup_summary_normal/{tumors}_get_pileup_summaries.txt"
+        "results/{tumors}/logs/{tumors}_get_pileup_summaries_normal.txt",
+    benchmark:
+        "results/{tumors}/benchmark/{tumors}_get_pileup_summaries_normal.txt"
     shell:
         "(gatk GetPileupSummaries "
         "-I {params.tumor} "
@@ -75,12 +75,12 @@ rule calculate_contamination:
         contamination_table = temp("results/{tumors}/contamination.table")
     resources:
         mem_mb = 8000,
-        runtime = "1h",
-        slurm_partition = "normal"
     conda:
         "../envs/mutect2.yaml"
     log:
-        "logs/calculate_contamination/{tumors}_calculate_contamination.txt",
+        "results/{tumors}/logs/{tumors}_calculate_contamination.txt",
+    benchmark:
+        "results/{tumors}/benchmark/{tumors}_calculate_contamination.txt",
     shell:
         "(gatk CalculateContamination "
         "-I {input.summary_table} "
@@ -104,12 +104,12 @@ rule filter_mutect_calls:
         max_events_in_region = 1,
     resources:
         mem_mb = 8000,
-        runtime = "30m",
-        slurm_partition = "normal"
     conda:
         "../envs/mutect2.yaml"
     log:
-        "logs/filter_mutect_calls/{tumors}_filter_mutect_calls.txt",
+        "results/{tumors}/logs/{tumors}_filter_mutect_calls.txt",
+    benchmark:
+        "results/{tumors}/benchmark/{tumors}_filter_mutect_calls.txt",
     message:
         "Filtering called variants based on the learn read orientation model for ffpe, segments and contamination table, as well as removing indels."
     shell:
@@ -132,10 +132,10 @@ rule filter_ffpe_artifacts:
         ffpe_filtered_vcf = temp("results/{tumors}/filtered_no_ffpe_artifacts.vcf.gz"),
     resources:
         mem_mb = 1024,
-        runtime = "2m",
-        slurm_partition = "MSC"
     log:
-        "logs/filter_ffpe_artifacts/{tumors}_filter_ffpe_artifacts.txt",
+        "results/{tumors}/logs/{tumors}_filter_ffpe_artifacts.txt",
+    benchmark:
+        "results/{tumors}/benchmark/{tumors}_filter_ffpe_artifacts.txt",
     message:
         "To remove possible ffpe artifacts harshly. This rule is optional and can be commented out."
     conda:
